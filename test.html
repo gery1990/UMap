@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="IE=11" >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="renderer" content="webkit">
+    <title></title>
+
+    <link rel="shortcut icon" href="favicon.png"> <link href="themes/plugins/bootstrap/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="themes/plugins/fontawesome/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link href="themes/plugins/icomoon/icomoon.css" rel="stylesheet">
+    <link href="themes/plugins/animate/animate.css" rel="stylesheet">
+    <link href="themes/style.css?v=4.1.0" rel="stylesheet">
+</head>
+
+<body class="fixed-sidebar full-height-layout gray-bg" style="overflow:hidden">
+    <div id="wrapper">
+        <!--左侧导航开始-->
+        <nav class="navbar-default navbar-static-side" role="navigation">
+            <div class="sidebar-collapse">
+                <ul class="nav" id="side-menu">
+                    <li class="nav-header">
+                        <div class="logo-img">
+                            <span><img alt="image" id="project_logo_img" src=""/></span>
+                        </div>
+                        <div class="logo-element">
+                            <span><img alt="image" id="project_logo_img_mini" src=""/></span>
+                        </div>
+                    </li>
+                    <li>
+                        <a>
+                            <i class="icon-stack2"></i>
+                            <span class="nav-label">基础数据</span>
+                            <span class="fa arrow"></span>
+                        </a>
+                        <ul class="nav nav-second-level">
+                            <li>
+                                <a class="J_menuItem" href="index_v1.html" data-index="0">全国城镇边界</a>
+                            </li>
+                            <li>
+                                <a class="J_menuItem" href="index_v2.html">村界数据</a>
+                            </li>
+                            <li>
+                                <a class="J_menuItem" href="index_v3.html">POI数据</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a>
+                            <i class="icon-stack2"></i>
+                            <span class="nav-label">规划数据</span>
+                            <span class="fa arrow"></span>
+                        </a>
+                        <ul class="nav nav-second-level">
+                            <li>
+                                <a class="J_menuItem" href="index_v1.html" data-index="0">总体规划</a>
+                            </li>
+                            <li>
+                                <a class="J_menuItem" href="index_v2.html">控制性详细规划</a>
+                            </li>
+                            <li>
+                                <a class="J_menuItem" href="index_v3.html">专项规划</a>
+                            </li>
+                            <li>
+                                <a class="J_menuItem" href="index_v4.html">城镇体系规划</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <!--左侧导航结束-->
+        <!--右侧部分开始|地图主窗体-->
+        <div id="page-wrapper" class="gray-bg dashbard-1">
+            <!--主窗体工具条开始-->
+            <div class="row border-bottom">
+                <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+                    <div class="navbar-header">
+                        <div class="navbar-left-buttons">
+                            <a class="navbar-minimalize" title="折叠菜单栏"><i class="fa fa-bars"></i> </a>
+                            <a class="navbar-showToolsBar" title="工具栏"><i class="icon icon-hammer"></i> </a>
+                            <a title="图层控制"><i class="icon-stack"></i> </a>
+                        </div>
+                    </div>
+                    <ul class="nav navbar-top-links navbar-right">
+                        <li class="dropdown">
+                            <a class="dropdown-toggle login-info" data-toggle="dropdown" >
+                                <span><img alt="image" class="img-circle" src="img/profile_small.jpg" height="24" width="24"/></span>
+                            </a>
+                            <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                                <li><a class="J_menuItem" href="">修改密码</a></li>
+                                <li><a href="login.html">安全退出</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <form role="search" class="navbar-form-custom" method="post" action="search_results.html">
+                                <div class="form-group">
+                                    <input type="text" placeholder="关键字或地址搜索 …" class="form-control" name="top-search" id="top-search">
+                                </div>
+                            </form>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            <!--主窗体工具条结束-->
+            <!--主窗体地图窗体开始-->
+            <div class="row page-wrapper-container max-page-wrapper-container">
+                <a class="max-right btn btn-primary animated fadeInRight" title="打开"><i class="fa fa-bookmark"></i></a>
+                <div class="col-sm-12 col-md-12 page-wrapper-content">
+                    <div class="J_mainContent" id="content-main">
+                        <div id="centerpanel"></div>
+                    </div>
+                    <div class="page-wrapper-tools umap-animate">
+                        <div class="btn-toolbar" role="toolbar" aria-label="...">
+                            <div class="btn-group" role="group" aria-label="tools-measure">
+                                <a class="tools-bar" title="测距"><i class="icon icon-ruler-solid"></i></a>
+                                <a class="tools-bar" title="测面积"><i class="icon icon icon-ruler"></i></a>
+                                <span class="tools-bar-split"></span>
+                                <a class="tools-bar" title="1屏"><i class="icon icon-splitone"></i></a>
+                                <a class="tools-bar" title="2屏"><i class="icon icon-splittwo"></i></a>
+                                <a class="tools-bar" title="3屏"><i class="icon icon-splitthree"></i></a>
+                                <a class="tools-bar" title="4屏"><i class="icon icon-splitfour"></i></a>
+                                <span class="tools-bar-split"></span>
+                                <a class="tools-bar" title="标点"><i class="icon icon-location"></i></a>
+                                <a class="tools-bar" title="标线"><i class="icon icon-timeline"></i></a>
+                                <a class="tools-bar" title="圆形"><i class="icon icon-circle"></i></a>
+                                <a class="tools-bar" title="矩形"><i class="icon icon-square"></i></a>
+                                <a class="tools-bar" title="多边形"><i class="icon icon-draw-polygon-solid"></i></a>
+                                <a class="tools-bar" title="文本"><i class="icon icon-text-color"></i></a>
+                                <span class="tools-bar-split"></span>
+                                <a class="tools-bar tools-bar-close" title="关闭"><i class="fa fa-close"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-wrapper-right">
+                    <div class="content-tabs">
+                        <button class="roll-nav roll-left J_tabLeft"><i class="fa fa-backward"></i></button>
+                        <nav class="page-tabs J_menuTabs">
+                            <div class="page-tabs-content">
+                                <a href="javascript:;" class="active J_menuTab" data-id="index_v1.html">首页</a>
+                            </div>
+                        </nav>
+                        <button class="roll-nav roll-right J_tabRight"><i class="fa fa-forward"></i>
+                        </button>
+                        <a class="roll-nav roll-right min-right" title="隐藏"><i class="fa fa-times"></i></a>
+                    </div>
+                </div>
+            </div>
+            <!--主窗体地图窗体结束-->
+        </div>
+        <!--右侧部分结束-->
+    </div>
+    <script src='js/jquery.min.js' type="text/javascript"></script>
+    <script src="js/bootstrap.min.js?v=3.3.6" type="text/javascript"></script>
+    <script src="js/plugins/metisMenu/jquery.metisMenu.js"></script>
+    <script src="js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="js/plugins/layer/layer.min.js"></script>
+    <script src="js/contabs.js" type="text/javascript"></script>
+    <script src="js/plugins/pace/pace.min.js" type="text/javascript"></script>
+
+    <script src="projects/project.script.js" type='text/javascript'></script>
+    <script src="projects/project.init.js" type='text/javascript'></script>
+</body>
+
+</html>

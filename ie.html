@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>H+已不再支持老旧的IE</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <style>
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .centerpanel{
+            width: 100%;
+            height: calc(100% - 15px);
+        }
+        .map-main,
+        .map-two,
+        .map-three,
+        .map-four{
+            float:left;
+            border:1px solid #ccc;
+            box-sizing: border-box;
+        }
+        .centerpanel:last-child{
+            clear: right;
+        }
+
+        /*1屏*/
+        .multiOne .map-main{
+            width:100%;
+            height: 100%;
+        }
+        .multiOne .map-two{
+            display: none;
+        }
+        .multiOne .map-three{
+            display: none;
+        }
+        .multiOne .map-four{
+            display: none;
+        }
+        /*2屏*/
+        .multiTwo .map-main{
+            width:calc(50% - 2px);
+            margin-right: 2px;
+            height: 100%;
+        }
+        .multiTwo .map-two{
+            width:calc(50% - 2px);
+            margin-left: 2px;
+            height: 100%;
+        }
+        .multiTwo .map-three{
+            display: none;
+        }
+        .multiTwo .map-four{
+            display: none;
+        }
+        /*3屏*/
+        .multiThree .map-main{
+            width:calc(50% - 2px);
+            margin-right: 2px;
+            height: 100%;
+        }
+        .multiThree .map-two{
+            width:calc(50% - 2px);
+            margin: 0 0 2px 2px;
+            height: calc(50% - 2px);
+        }
+        .multiThree .map-three{
+            width:calc(50% - 2px);
+            margin: 2px 0 0 2px;
+            height: calc(50% - 2px);
+        }
+        .multiThree .map-four{
+            display: none;
+        }
+        /*4屏*/
+        .multiFour .map-main{
+            width:calc(50% - 2px);
+            height: calc(50% - 2px);
+            margin: 0 2px 2px 0;
+        }
+        .multiFour .map-two{
+            width:calc(50% - 2px);
+            height: calc(50% - 2px);
+            margin: 0  0 2px 2px;
+        }
+        .multiFour .map-three{
+            width:calc(50% - 2px);
+            height: calc(50% - 2px);
+            margin: 2px 2px 0 0;
+        }
+        .multiFour .map-four{
+            width:calc(50% - 2px);
+            height: calc(50% - 2px);
+            margin: 2px 0 0 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="centerpanel multiFour">
+        <div class="map-main">
+
+        </div>
+        <div class="map-two">
+
+        </div>
+        <div class="map-three">
+
+        </div>
+        <div class="map-four">
+
+        </div>
+    </div>
+</body>
+
+</html>
