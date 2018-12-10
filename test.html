@@ -12,6 +12,7 @@
     <link href="themes/plugins/fontawesome/font-awesome.css?v=4.4.0" rel="stylesheet">
     <link href="themes/plugins/icomoon/icomoon.css" rel="stylesheet">
     <link href="themes/plugins/animate/animate.css" rel="stylesheet">
+    <link href="themes/plugins/toastr/toastr.min.css" rel="stylesheet">
     <link href="themes/style.css?v=4.1.0" rel="stylesheet">
 </head>
 
@@ -29,44 +30,14 @@
                             <span><img alt="image" id="project_logo_img_mini" src=""/></span>
                         </div>
                     </li>
-                    <li>
-                        <a>
-                            <i class="icon-stack2"></i>
-                            <span class="nav-label">基础数据</span>
-                            <span class="fa arrow"></span>
-                        </a>
-                        <ul class="nav nav-second-level">
-                            <li>
-                                <a class="J_menuItem" href="index_v1.html" data-index="0">全国城镇边界</a>
-                            </li>
-                            <li>
-                                <a class="J_menuItem" href="index_v2.html">村界数据</a>
-                            </li>
-                            <li>
-                                <a class="J_menuItem" href="index_v3.html">POI数据</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a>
-                            <i class="icon-stack2"></i>
-                            <span class="nav-label">规划数据</span>
-                            <span class="fa arrow"></span>
-                        </a>
-                        <ul class="nav nav-second-level">
-                            <li>
-                                <a class="J_menuItem" href="index_v1.html" data-index="0">总体规划</a>
-                            </li>
-                            <li>
-                                <a class="J_menuItem" href="index_v2.html">控制性详细规划</a>
-                            </li>
-                            <li>
-                                <a class="J_menuItem" href="index_v3.html">专项规划</a>
-                            </li>
-                            <li>
-                                <a class="J_menuItem" href="index_v4.html">城镇体系规划</a>
-                            </li>
-                        </ul>
+                    <li id="menu-spinner">
+                        <div class="sk-spinner sk-spinner-wave">
+                            <div class="sk-rect1"></div>
+                            <div class="sk-rect2"></div>
+                            <div class="sk-rect3"></div>
+                            <div class="sk-rect4"></div>
+                            <div class="sk-rect5"></div>
+                        </div>
                     </li>
                 </ul>
             </div>
@@ -160,6 +131,7 @@
     <script src="js/plugins/layer/layer.min.js"></script>
     <script src="js/contabs.js" type="text/javascript"></script>
     <script src="js/plugins/pace/pace.min.js" type="text/javascript"></script>
+    <script src="js/plugins/toastr/toastr.min.js" type="text/javascript"></script>
 
     <script src="projects/project.script.js" type='text/javascript'></script>
     <script src="projects/project.init.js" type='text/javascript'></script>

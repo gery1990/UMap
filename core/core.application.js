@@ -8,8 +8,9 @@
 R.define([
     "core/baseobject",
     "core/pool",
+    "core/multimap",
     "layout/centerpanel",
-    "core/multimap"
+    "layout/leftmenu"
 ], function () {
     UMAP.Application = UMAP.BaseObject.extend({
         /**
@@ -60,18 +61,7 @@ R.define([
         *@type {Object}
         */
         options: {},
-        /**
-        *左面板
-        *@property leftPanel
-        *@type {Object}
-        */
-        leftPanel: null,
-        /**
-        *右面板
-        *@property rightPanel
-        *@type {Object}
-        */
-        rightPanel: null,
+
         /**
         *中心面板
         *@property centerPanel
@@ -132,12 +122,18 @@ R.define([
                 //     this.topPanel = new UMAP.Layout.TopPanel();
                 //     this.pool.add(this.topPanel);
                 // }
-                if (this.options.center.visible == true) {
-                    this.centerPanel = new UMAP.Layout.CenterPanel();
-                    this.pool.add(this.centerPanel);
-                }
+                /****初始地图窗体-开始*****/
+                this.centerPanel = new UMAP.Layout.CenterPanel();
+                this.pool.add(this.centerPanel);
                 var multiMap = new UMAP.MultiMap();
                 UMAP.app.pool.add(multiMap);
+                /****初始地图窗体-结束*****/
+
+                /****初始左侧菜单栏-开始*****/
+                this.leftMenu=new UMAP.Layout.LeftMenu();
+                this.pool.add(this.leftMenu);
+                /****初始左侧菜单栏-结束*****/
+
             } catch (e) {
                 // this.util.dialog.error("错误提示", "系统初始化异常:" + e.message);
             }

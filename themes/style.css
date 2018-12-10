@@ -145,10 +145,6 @@ body.body-small .navbar-top-links li:last-child {
     display: block;
 }
 
-.navbar-top-links .dropdown-menu li:last-child {
-    margin-right: 0;
-}
-
 .navbar-top-links .dropdown-menu li a {
     padding: 3px 20px;
     min-height: 0;
@@ -8162,4 +8158,9 @@ body.skin-3 {
     width:calc(50% - 2px);
     height: calc(50% - 2px);
     margin: 2px 0 0 2px;
+}
+
+/****leftmenu*****/
+#menu-spinner{
+    padding-top:100%
 }

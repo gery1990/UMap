@@ -11,8 +11,14 @@ R.define([
     "esri/views/MapView",
     "esri/layers/TileLayer",
     "esri/geometry/Extent",
+    "esri/widgets/Expand",
+    "esri/widgets/BasemapGallery",
+    "esri/widgets/BasemapGallery/support/LocalBasemapsSource",
+    "esri/Basemap",
+    "esri/widgets/Home",
+    "esri/widgets/Legend",
     "dojo/domReady!"
-], function (baseobject,Map,MapView,TileLayer,Extent) {
+], function (baseobject,Map,MapView,TileLayer,Extent,ExpandWidget,BasemapGallery,LocalBasemapsSource,Basemap,HomeWidget,LegendWidget) {
     UMAP.Map = UMAP.BaseObject.extend({
         /**
         *地图对象
@@ -115,44 +121,105 @@ R.define([
         *@param options {Object} 地图配置
         */
         initialize: function (options) {
-            UMAP.BaseObject.prototype.initialize.call(this);
-            this.container = document.getElementById(options.container);
-            this.id = options.id;
-            //======================初始化Map开始======================/
-            var baseMapConfig=Project_ParamConfig.baseLayer.layers[Project_ParamConfig.baseLayer.usedIndex];
-            var baseLayer;
-            switch (baseMapConfig.type) {
-                case "tile":
-                    baseLayer = new TileLayer({url: baseMapConfig.url});
-                    break;
-                case "vector":
-                    break;
-                case "wms":
-                    break;
-                default:
-                    break;
-            }
-            if (!baseLayer) return;
-            var mapObj = new Map({
-                layers: [baseLayer]
-            });
-            var view = new MapView({
-                map: mapObj,
-                container: options.container
-            });
-            view.center = baseMapConfig.origin;
-            view.zoom = baseMapConfig.zoom;
-            view.extent = new Extent(baseMapConfig.fullextent);
-            view.ui.remove("attribution");//移除了地图窗体最下面的描述
+            try{
+                UMAP.BaseObject.prototype.initialize.call(this);
+                this.container = document.getElementById(options.container);
+                this.id = options.id;
+                //======================初始化Map开始======================/
+                this.basemaps=[];
+                Project_ParamConfig.baseLayer.layers.forEach(function(baseLayerConfig){
+                    switch (baseLayerConfig.type) {
+                        case "tile":
+                            let basemap=new Basemap({
+                                baseLayers:[new TileLayer({url: baseLayerConfig.url})],
+                                id:baseLayerConfig.id,
+                                title:baseLayerConfig.attribution,
+                                thumbnailUrl:baseLayerConfig.thumbnailUrl
+                            });
+                            this.basemaps.push(basemap);
+                            break;
+                        case "vector":
+                            break;
+                        case "wms":
+                            break;
+                        default:
+                            break;
+                    }
+                }.bind(this));
+                if (!this.basemaps[Project_ParamConfig.baseLayer.defaultBaseMapIndex]) return;
 
-            view.when(function(){
-                console.log("The view's resources success to load!");
-            }, function(error){
-                console.log("The view's resources failed to load: ", error);
-            });
+                var mapObj = new Map({
+                    basemap: this.basemaps[Project_ParamConfig.baseLayer.defaultBaseMapIndex]
+                });
+                this.view = new MapView({
+                    map: mapObj,
+                    container: options.container
+                });
+                var baseMapConfig=Project_ParamConfig.baseLayer.layers[Project_ParamConfig.baseLayer.defaultBaseMapIndex];
+                this.view.center = baseMapConfig.origin;
+                this.view.zoom = baseMapConfig.zoom;
+                this.view.extent = new Extent(baseMapConfig.fullextent);
+                this.view.ui.remove("attribution");//移除了地图窗体最下面的描述
+
+                this.view.when(function(){
+                    this.__initWidgets();//地图加载后初始化地图控件
+                    console.log("The view's resources success to load!");
+                }.bind(this), function(error){
+                    console.log("The view's resources failed to load: ", error);
+                });
+            }catch(e){
+                console.log(e);
+            }
             //======================初始化Map结束======================/
         },
+        __initWidgets:function(){
+            var widgetsConf=Project_ParamConfig.viewWidgets;
+            widgetsConf.forEach(function(widgetConf){
+                if(widgetConf.visible){
+                    switch (widgetConf.id){
+                        case 'BasemapGallery':
+                            var basemapGallery = new BasemapGallery({
+                                view: this.view,
+                                container: document.createElement("div"),
+                                source:new LocalBasemapsSource({basemaps:this.basemaps})
+                            });
+                            var bgExpand = new ExpandWidget({
+                                view: this.view,
+                                content: basemapGallery,
+                                autoCollapse:true
+                            });
+                            this.view.ui.add(bgExpand, widgetConf.position);
 
+                            // var toggleBaseMapObj = new Basemap({
+                            //     id:Project_ParamConfig.baseLayer.toggleMap.id,
+                            //     baseLayers: [baseLayers[Project_ParamConfig.baseLayer.toggleMap.index]],
+                            //     thumbnailUrl:Project_ParamConfig.baseLayer.toggleMap.thumbnailUrl
+                            // });
+                            //
+                            // var toggleWidgets = new BasemapToggle({
+                            //     view: view,
+                            //     nextBasemap: toggleBaseMapObj
+                            // });
+                            // view.ui.add(toggleWidgets, "bottom-right");
+                            break;
+                        case 'Home':
+                            var homeWidget=new HomeWidget({
+                                view: this.view
+                            });
+                            this.view.ui.add(homeWidget, widgetConf.position);
+                            break;
+                        case 'LegendWidget':
+                            var legendWidget=new ExpandWidget({
+                                content:new LegendWidget({view: this.view,style: "card"}),
+                                view:this.view,
+                                autoCollapse:true
+                            });
+                            this.view.ui.add(legendWidget, widgetConf.position);
+                            break;
+                    }
+                }
+            }.bind(this));
+        },
         /**
         *激活鼠标状态
         *@method activate

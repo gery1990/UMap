@@ -7,8 +7,10 @@ var Default_Paths = {
     "core/application":"./core/core.application.js",
     "core/map":"./core/core.map.js",
     "core/multimap":"./core/core.multimap.js",
+    "layout/alert":"./layout/layout.alert.js",
     "layout/base":"./layout/layout.base.js",
-    "layout/centerpanel":"./layout/layout.centerpanel.js"
+    "layout/centerpanel":"./layout/layout.centerpanel.js",
+    "layout/leftmenu":"./layout/layout.leftmenu.js"
 }
 
 var Default_Shims = {
