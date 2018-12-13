@@ -5,7 +5,7 @@
 *@constructor initialize
 */
 R.define([], function (L) {
-    UMAP.BaseObject = UMAP.Class.extend({
+    UMAP.Core.BaseObject = UMAP.Class.extend({
 
         /**
         *对象id
@@ -30,5 +30,5 @@ R.define([], function (L) {
         }
     });
 
-    return UMAP.BaseObject;
+    return UMAP.Core.BaseObject;
 });

@@ -9,10 +9,13 @@ R.define([
     "core/baseobject",
     "core/pool",
     "core/multimap",
+    "common/alert",
     "layout/centerpanel",
-    "layout/leftmenu"
-], function () {
-    UMAP.Application = UMAP.BaseObject.extend({
+    "layout/leftmenu",
+    "layout/navtools",
+    "layout/rightpanel"
+], function (baseObject,corePool,coreMultimap,Alert,layoutCenterPanel,layoutLeftMenu,layoutNavTools,layoutRightPanel) {
+    UMAP.Core.Application = UMAP.Core.BaseObject.extend({
         /**
         *对象缓冲池
         *@property pool
@@ -26,60 +29,41 @@ R.define([
         */
         symbol: null,
         /**
-        *信息提示框对象
-        *@property dialog
-        *@type {Object}
-        */
-        dialog: null,
-        /**
-        *菜单处理
-        *@property tool
-        *@type {Object}
-        */
-        tool: null,
-        /**
-        *工具
-        *@property util
-        *@type {Object}
-        */
-        util: null,
-        /**
-        *服务
-        *@property services
-        *@type {Object}
-        */
-        services: null,
-        /**
-        *菜单
-        *@property menu
-        *@type {Object}
-        */
-        menu: null,
-        /**
         *配置
         *@property options
         *@type {Object}
         */
         options: {},
-
         /**
-        *中心面板
+        *中间布局面板
         *@property centerPanel
         *@type {Object}
         */
-        centerPanel: null,
+        centerPanel:null,
         /**
-        *顶面板
-        *@property topPanel
+        *分屏管理
+        *@multiMap options
         *@type {Object}
         */
-        topPanel: null,
+        multiMap:null,
         /**
-        *底面板
-        *@property bottomPanel
+        *左侧菜单栏
+        *@property leftMenu
         *@type {Object}
         */
-        bottomPanel: null,
+        leftMenu:null,
+        /**
+        *顶部工具栏
+        *@property navTools
+        *@type {Object}
+        */
+        navTools:null,
+        /**
+        *右侧结果栏
+        *@property rightPanel
+        *@type {Object}
+        */
+        rightPanel:null,
         /**
         *初始化
         *@method initialize
@@ -87,11 +71,7 @@ R.define([
         initialize: function (options) {
             try {
                 this.options = options;
-                this.pool = new UMAP.Pool();
-                // this.menu = new UMAP.Menu(this.util, this.services);
-                // this.symbol = new UMAP.Symbol();
-                //触发获得焦点，
-                // $("#centerpanel").on('click', function () { $(this).focus(); });
+                this.pool = new corePool();
             } catch (e) {
                 console.log(e.message);
             }
@@ -103,42 +83,32 @@ R.define([
         */
         init: function () {
             try {
-                // if (this.options.left.visible == true) {
-                //     this.leftPanel = new UMAP.Layout.LeftPanel();
-                //     this.pool.add(this.leftPanel);
-                // }
-                // if (this.options.right.visible == true) {
-                //     this.rightpanel = new UMAP.Layout.RightPanel();
-                //     this.pool.add(this.rightpanel);
-                // } else {
-                //     // $("#centerpanel").css("padding-right", "0px");
-                //     // $("#rightpanel").css("display", "none");
-                // }
-                // if (this.options.bottom.visible == true) {
-                //     this.bottompanel = new UMAP.Layout.BottomPanel();
-                //     this.pool.add(this.bottompanel);
-                // }
-                // if (this.options.top.visible == true) {
-                //     this.topPanel = new UMAP.Layout.TopPanel();
-                //     this.pool.add(this.topPanel);
-                // }
                 /****初始地图窗体-开始*****/
-                this.centerPanel = new UMAP.Layout.CenterPanel();
+                this.centerPanel = new layoutCenterPanel();
                 this.pool.add(this.centerPanel);
-                var multiMap = new UMAP.MultiMap();
-                UMAP.app.pool.add(multiMap);
+                this.multiMap = new coreMultimap();
+                this.pool.add(this.multiMap);
                 /****初始地图窗体-结束*****/
 
                 /****初始左侧菜单栏-开始*****/
-                this.leftMenu=new UMAP.Layout.LeftMenu();
+                this.leftMenu=new layoutLeftMenu();
                 this.pool.add(this.leftMenu);
                 /****初始左侧菜单栏-结束*****/
 
+                /****初始顶部工具栏菜单-开始*****/
+                this.navTools=new layoutNavTools();
+                this.pool.add(this.navTools);
+                /****初始顶部工具栏菜单-结束*****/
+
+                /****初始右侧结果栏-开始*****/
+                this.rightPanel=new layoutRightPanel();
+                this.pool.add(this.rightPanel);
+                /****初始右侧结果栏-结束*****/
             } catch (e) {
-                // this.util.dialog.error("错误提示", "系统初始化异常:" + e.message);
+                Alert.warning("", "系统初始化异常:" + e.message);
             }
         }
     });
 
-    return UMAP.Application;
+    return UMAP.Core.Application;
 });

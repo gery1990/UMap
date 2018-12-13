@@ -7,8 +7,8 @@
 */
 R.define([
     "core/baseobject"
-], function () {
-    UMAP.Layout = UMAP.BaseObject.extend({
+], function (L) {
+    UMAP.Layout.BaseObject = UMAP.Core.BaseObject.extend({
         /**
         *类标识
         *@property id
@@ -45,7 +45,7 @@ R.define([
         *@method initialize
         */
         initialize: function() {
-            UMAP.BaseObject.prototype.initialize.call(this);
+            UMAP.Core.BaseObject.prototype.initialize.call(this);
         },
         /**
         *设置可见性
@@ -59,7 +59,8 @@ R.define([
             else
                 this.body.css("display", "");
         }
+
     });
 
-    return UMAP.Layout;
+    return UMAP.Layout.BaseObject;
 });

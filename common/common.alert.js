@@ -3,7 +3,7 @@
 *@module layout
 *@class UMAP.Layout.CenterPanel
 *@constructor initialize
-*@extends UMAP.Layout
+*@extends UMAP.Common
 */
 R.define([], function () {
     var initAlertForm = function(options){

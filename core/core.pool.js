@@ -8,7 +8,7 @@
 R.define([
     "core/baseobject"
 ], function() {
-    UMAP.Pool = UMAP.BaseObject.extend({
+    UMAP.Core.Pool = UMAP.Core.BaseObject.extend({
         /**
          *缓存数组
          *@property pool
@@ -77,5 +77,5 @@ R.define([
             return false;
         }
     });
-    return UMAP.Pool;
+    return UMAP.Core.Pool;
 });

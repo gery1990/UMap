@@ -6,9 +6,12 @@
 *@extends UMAP.BaseObject
 */
 R.define([
-    "core/map"
-], function () {
-    UMAP.MultiMap = UMAP.BaseObject.extend({
+    "dojo/_base/connect",
+    "common/alert",
+    "core/map",
+    "core/baseobject"
+], function (connect,Alert,coreMap) {
+    UMAP.Core.MultiMap = UMAP.Core.BaseObject.extend({
         /**
         *类ID
         *@property id
@@ -34,20 +37,20 @@ R.define([
         *@type {Object}
         */
         _mapContainer: {
-            containerone: 'map-main',
-            containertow: 'map-tow',
-            containerthree: 'map-three',
-            containerfour: 'map-four'
+            containerone: 'mapone',
+            containertow: 'maptwo',
+            containerthree: 'mapthree',
+            containerfour: 'mapfour'
         },
 
         /**
         *map对象集合
-        *@property _objMap
+        *@property _objsMap
         *@type {Object}
         */
-        _objMap: {
+        _objsMap: {
             mapone: null,
-            maptow: null,
+            maptwo: null,
             mapthree: null,
             mapfour: null
         },
@@ -57,19 +60,35 @@ R.define([
         *@method initialize
         */
         initialize: function (options) {
-            //用于标识状态-默认显示第一个
-            this.currentSplit = 'one';
+            try{
 
-            /*当前活跃地图窗口改变事件*/
-            this._activeMapChange = $.Event('activeMapChange.fy.split');
+                UMAP.Core.BaseObject.prototype.initialize.call(this);
+                //用于标识状态-默认显示第一个
+                this.currentSplit = 1;
 
-            this._objMap.mapOne = this._createMap({ id: 'mapone', container: 'map-main' });
-            $("#centerpanel").toggleClass("multiOne");
-            this._activeMap = this._objMap.mapOne;
-            this._preActiveMap = this._objMap.mapOne;
+                /*当前活跃地图窗口改变事件*/
+                connect.subscribe('activeMapChange',this._activeMapChange.bind(this));
+                // this._activeMapChange = $.Event('activeMapChange.fy.split');
 
-            var isMapReady = $.Event('multimap:initialize');
-            // $(document).trigger(isMapReady, { activeMap: this._activeMap, mapGroup: [this._activeMap], splitNum: "1", target: this });
+                //默认加载一个地图
+                this._objsMap.mapone = this._createMap({ id: 'mapone', container: 'mapone' });
+                this.$multimap=$("#centerpanel");
+                this.$multimap.toggleClass("multiOne");
+                this._activeMap = this._objsMap.mapone;
+                this._preActiveMap = this._objsMap.mapone;
+
+                var isMapReady = $.Event('multimap:initialize');
+                this._removeSpinner();
+                $(document).trigger(isMapReady, { activeMap: this._activeMap, mapGroup: [this._activeMap], splitNum: "1", target: this });
+                // setTimeout(function(){
+                //     this.splitMap(3);
+                // }.bind(this),5000);
+                // setTimeout(function(){
+                //     this.splitMap(1);
+                // }.bind(this),10000);
+            }catch(e){
+                Alert.warning("",e.message);
+            }
         },
 
         /**
@@ -80,43 +99,21 @@ R.define([
         *@private
         */
         _createMap: function (options) {
-            options.obj = new UMAP.Map({
+            options.obj = new coreMap({
                 id: options.id,
                 container: options.container,
             });
-            // if (options.id == "map") {
-            //     options.obj = new UMAP.Map({
-            //         id: options.id,
-            //         container: options.container,
-            //     });
-            // } else {
-            //     options.obj = new L.DCI.Map({
-            //         id: options.id,
-            //         navigationControl: false,
-            //         defaultExtentControl: false,
-            //         miniMapControl: true,
-            //         scalebarControl: false,
-            //         layerSwitchControl: false,
-            //         loadingControl: false,
-            //         panControl: false,
-            //         layerTabControl: true,
-            //         fullscreenControl:false,
-            //         contextmenu: Project_ParamConfig.controls.contextmenu,
-            //
-            //         baseCrs: Project_ParamConfig.crs,
-            //         baseLayer: Project_ParamConfig.baseLayer,//底图
-            //         themLayers: Project_ParamConfig.themLayers,//专题图层
-            //         changeLayers: Project_ParamConfig.changeLayers,//切换图层
-            //         timeLayers: Project_ParamConfig.timeLayers,//时间轴地图
-            //         container: options.container,
-            //         tileSize: Project_ParamConfig.baseLayer.tileSize || 512,
-            //         minZoom: Project_ParamConfig.baseLayer.minZoom || 0,
-            //         maxZoom: Project_ParamConfig.baseLayer.maxZoom || 10,
-            //         zoom: Project_ParamConfig.baseLayer.zoom || 0
-            //     });
-            // }
             UMAP.app.pool.add(options.obj);
             return options.obj;
+        },
+
+        /**
+        *分屏
+        *@method splitMap
+        *@param splitNum {Number} 分屏数，值为1~4之间
+        */
+        _activeMapChange:function(evt){
+            this._activeMap=this._objsMap[evt.id];
         },
         /**
         *返回全部map对象
@@ -126,9 +123,9 @@ R.define([
         getMapGroup: function () {
             var obj = null;
             var objMapGroup = [];
-            for (obj in this._objMap) {
-                if (this._objMap[obj]) {
-                    objMapGroup.push(this._objMap[obj]);
+            for (obj in this._objsMap) {
+                if (this._objsMap[obj]) {
+                    objMapGroup.push(this._objsMap[obj]);
                 }
             }
             return objMapGroup;
@@ -148,87 +145,74 @@ R.define([
         *@param splitNum {Number} 分屏数，值为1~4之间
         */
         splitMap: function (splitNum) {
-            var $map_panel = $('#centerpanel');
-            switch (splitNum) {
-                case 'splitOne':
-                    if (this.preSplit == "one") return;
-                    $map_panel.removeClass('map_tow map_three map_four');
-                    this.preSplit = "one";
-                    this._clearMap("splitOne");
-                    this._activeMap = this._objMap.mapOne;
-                    break;
-                case 'splitTow':
-                    if (this.preSplit == "tow") return;
-                    $map_panel.removeClass('map_three map_four').addClass('map_tow');
-                    this.preSplit = "tow";
-                    this._crearMapObj('tow');
-                    this._clearMap("splitTow");
-                    break;
-                case 'splitThree':
-                    if (this.preSplit == "three") return;
-                    $map_panel.removeClass('map_tow map_four').addClass('map_three');
-                    this.preSplit = "three";
-                    this._crearMapObj('three');
-                    this._clearMap("splitTree");
-                    break;
-                case 'splitFour':
-                    if (this.preSplit == "four") return;
-                    $map_panel.removeClass('map_tow map_three').addClass('map_four');
-                    this.preSplit = "four";
-                    this._crearMapObj('four');
-                    this._clearMap("splitFour");
-                    break;
+            if(splitNum==this.currentSplit) return;
+            if([1,2,3,4].indexOf(splitNum)>-1){
+                this.$multimap.removeClass();
+                switch (splitNum) {
+                    case 1:
+                        this.$multimap.addClass("multiOne");
+                        break;
+                    case 2:
+                        this.$multimap.addClass("multiTwo");
+                        break;
+                    case 3:
+                        this.$multimap.addClass("multiThree");
+                        break;
+                    case 4:
+                        this.$multimap.addClass("multiFour");
+                        break;
+                }
+
+                this._activeMap = this._objsMap.mapone;
+                this._bulidMap(splitNum);
+                this.currentSplit = splitNum;
             }
 
             //刷新
-            this._invalidateSize();
-            this._splitControlsView(splitNum);
-            if (splitNum == "splitOne") return;
-            this._addclickEvent();
+            // this._invalidateSize();
+            // this._splitControlsView(splitNum);
+            // if (splitNum == "splitOne") return;
+            // this._addclickEvent();
+            //
+            // this.fire("multimap:splitMap", { activeMap: this._activeMap, mapGroup: this.getMapGroup(), splitNum: splitNum });
+        },
+        _bulidMap:function(splitNum){
+            let diffNum=this.currentSplit-splitNum;
+            if(diffNum==0) return;
+            if(diffNum>0){
+                //删除多余的地图
+                for(let i=splitNum+1;i<=this.currentSplit;i++){
+                    let mapId=__converNumToId(i);
+                    UMAP.app.pool.remove(mapId);//从缓存池删除
+                    this._objsMap[mapId].destroy();
+                    this._objsMap[mapId]=null;
+                }
+            }else{
+                //创建未有的地图
+                for(let i=this.currentSplit+1;i<=splitNum;i++){
+                    let mapId=__converNumToId(i);
+                    this._objsMap[mapId]=this._createMap({ id: mapId, container: mapId });
+                }
+            }
 
-            this.fire("multimap:splitMap", { activeMap: this._activeMap, mapGroup: this.getMapGroup(), splitNum: splitNum });
-        },
-        /**
-        *分屏状态，某些控件不许显示
-        *@method _splitControlsView
-        *@param type {String} 分屏类型
-        *@private
-        */
-        _splitControlsView: function (type) {
-            var dcimap = L.DCI.App.pool.get("map");
-            if (type == 'splitOne') {
-                dcimap.controls.legend.shower();
-                dcimap.controls.miniMap.shower();
-            } else {
-                dcimap.controls.legend.hidden();
-                dcimap.controls.miniMap.hidden();
+            function __converNumToId(num){
+                let id;
+                switch(num){
+                    case 1:
+                        id='mapone';
+                        break;
+                    case 2:
+                        id='maptwo';
+                        break;
+                    case 3:
+                        id='mapthree';
+                        break;
+                    case 4:
+                        id='mapfour';
+                        break;
+                }
+                return id;
             }
-        },
-        /**
-        *实例化map对象
-        *@method _crearMapObj
-        *@param splitNun {String} 分屏类型
-        *@private
-        */
-        _crearMapObj: function (splitNun) {
-            var tow = false, three = false, four = false;
-            switch (splitNun) {
-                case 'tow':
-                    tow = true;
-                    break;
-                case 'three':
-                    tow = true;
-                    three = true;
-                    break;
-                case 'four':
-                    tow = true;
-                    three = true;
-                    four = true;
-                    break;
-            }
-            if (!this._objMap.mapTow && tow) { this._objMap.mapTow = this._getNewMap({ obj: 'mapTow', id: 'mapTow', container: this._mapContainer.containerTow, center: this._objMap.mapOne.map.getCenter(), zoom: this._objMap.mapOne.map.getZoom() }); }
-            if (!this._objMap.mapThree && three) { this._objMap.mapThree = this._getNewMap({ obj: 'mapThree', id: 'mapThree', container: this._mapContainer.containerThree, center: this._objMap.mapOne.map.getCenter(), zoom: this._objMap.mapOne.map.getZoom() }) }
-            if (!this._objMap.mapFour && four) { this._objMap.mapFour = this._getNewMap({ obj: 'mapFour', id: 'mapFour', container: this._mapContainer.containerFour, center: this._objMap.mapOne.map.getCenter(), zoom: this._objMap.mapOne.map.getZoom() }) }
         },
 
         /**
@@ -237,22 +221,22 @@ R.define([
         *@private
         */
         _addclickEvent: function () {
-            if (this._objMap.mapOne) { this._objMap.mapOne.map.on('mouseover', this._mouseoverEventOne, this); }
-            if (this._objMap.mapTow) { this._objMap.mapTow.map.on('mouseover', this._mouseoverEventTow, this); }
-            if (this._objMap.mapThree) { this._objMap.mapThree.map.on('mouseover', this._mouseoverEventThree, this);}
-            if (this._objMap.mapFour) { this._objMap.mapFour.map.on('mouseover', this._mouseoverEventFour, this);}
-            if (this._objMap.mapOne) { this._objMap.mapOne.map.on('mouseout', this._mouseoutEvent, this); }
-            if (this._objMap.mapTow) { this._objMap.mapTow.map.on('mouseout', this._mouseoutEvent, this); }
-            if (this._objMap.mapThree) { this._objMap.mapOne.map.on('mouseout', this._mouseoutEvent, this); }
-            if (this._objMap.mapFour) { this._objMap.mapTow.map.on('mouseout', this._mouseoutEvent, this); }
+            if (this._objsMap.mapOne) { this._objsMap.mapOne.map.on('mouseover', this._mouseoverEventOne, this); }
+            if (this._objsMap.maptwo) { this._objsMap.maptwo.map.on('mouseover', this._mouseoverEventTow, this); }
+            if (this._objsMap.mapThree) { this._objsMap.mapThree.map.on('mouseover', this._mouseoverEventThree, this);}
+            if (this._objsMap.mapFour) { this._objsMap.mapFour.map.on('mouseover', this._mouseoverEventFour, this);}
+            if (this._objsMap.mapOne) { this._objsMap.mapOne.map.on('mouseout', this._mouseoutEvent, this); }
+            if (this._objsMap.maptwo) { this._objsMap.maptwo.map.on('mouseout', this._mouseoutEvent, this); }
+            if (this._objsMap.mapThree) { this._objsMap.mapOne.map.on('mouseout', this._mouseoutEvent, this); }
+            if (this._objsMap.mapFour) { this._objsMap.maptwo.map.on('mouseout', this._mouseoutEvent, this); }
 
-            if (this._objMap.mapOne && !this.clickOne) { this._objMap.mapOne.map.on('click', this._clickEventOne, this); this.clickOne = true; }
-            if (this._objMap.mapTow && !this.clickTow) { this._objMap.mapTow.map.on('click', this._clickEventTow, this); this.clickTow = true; }
-            if (this._objMap.mapThree && !this.clickTree) { this._objMap.mapThree.map.on('click', this._clickEventThree, this); this.clickTree = true; }
-            if (this._objMap.mapFour && !this.clickFour) { this._objMap.mapFour.map.on('click', this._clickEventFour, this); this.clickFour = true; }
+            if (this._objsMap.mapOne && !this.clickOne) { this._objsMap.mapOne.map.on('click', this._clickEventOne, this); this.clickOne = true; }
+            if (this._objsMap.maptwo && !this.clickTow) { this._objsMap.maptwo.map.on('click', this._clickEventTow, this); this.clickTow = true; }
+            if (this._objsMap.mapThree && !this.clickTree) { this._objsMap.mapThree.map.on('click', this._clickEventThree, this); this.clickTree = true; }
+            if (this._objsMap.mapFour && !this.clickFour) { this._objsMap.mapFour.map.on('click', this._clickEventFour, this); this.clickFour = true; }
 
             //初始化 触发click
-            this._objMap.mapOne.map.fireEvent('click');
+            this._objsMap.mapOne.map.fireEvent('click');
         },
 
         /**
@@ -263,13 +247,13 @@ R.define([
         _mouseoverEventOne: function () {
             if (this.mapMoveOne) { return; }
             this._clearMove();
-            this._objMap.mapOne.map.on('moveend', this._moveEndOne, this);
+            this._objsMap.mapOne.map.on('moveend', this._moveEndOne, this);
 
             //初始化触发moveend
-            this._objMap.mapOne.map.fireEvent('moveend');
+            this._objsMap.mapOne.map.fireEvent('moveend');
 
             this.mapMoveOne = true;
-            this._activeMap = this._objMap.mapOne;
+            this._activeMap = this._objsMap.mapOne;
         },
 
         /**
@@ -280,10 +264,10 @@ R.define([
         _mouseoverEventTow: function () {
             if (this.mapMoveTow) { return; }
             this._clearMove();
-            this._objMap.mapTow.map.on('moveend', this._moveEndTow, this);
+            this._objsMap.maptwo.map.on('moveend', this._moveEndTow, this);
 
             this.mapMoveTow = true;
-            this._activeMap = this._objMap.mapTow;
+            this._activeMap = this._objsMap.maptwo;
         },
 
         /**
@@ -294,10 +278,10 @@ R.define([
         _mouseoverEventThree: function () {
             if (this.mapMoveThree) { return; }
             this._clearMove();
-            this._objMap.mapThree.map.on('moveend', this._moveEndThree, this);
+            this._objsMap.mapThree.map.on('moveend', this._moveEndThree, this);
 
             this.mapMoveThree = true;
-            this._activeMap = this._objMap.mapThree;
+            this._activeMap = this._objsMap.mapThree;
         },
         /**
         *鼠标移进第四个分屏
@@ -307,10 +291,10 @@ R.define([
         _mouseoverEventFour: function () {
             if (this.mapMoveFour) { return; }
             this._clearMove();
-            this._objMap.mapFour.map.on('moveend', this._moveEndFour, this);
+            this._objsMap.mapFour.map.on('moveend', this._moveEndFour, this);
 
             this.mapMoveFour = true;
-            this._activeMap = this._objMap.mapFour;
+            this._activeMap = this._objsMap.mapFour;
         },
         /**
         *鼠标移出屏幕
@@ -326,10 +310,10 @@ R.define([
         *@private
         */
         _invalidateSize: function () {
-            if (this._objMap.mapOne) { this._objMap.mapOne.map.invalidateSize({ animate: false }); }
-            if (this._objMap.mapTow) { this._objMap.mapTow.map.invalidateSize({ animate: false }); }
-            if (this._objMap.mapThree) { this._objMap.mapThree.map.invalidateSize({ animate: false });}
-            if (this._objMap.mapFour) { this._objMap.mapFour.map.invalidateSize({ animate: false }); }
+            if (this._objsMap.mapOne) { this._objsMap.mapOne.map.invalidateSize({ animate: false }); }
+            if (this._objsMap.maptwo) { this._objsMap.maptwo.map.invalidateSize({ animate: false }); }
+            if (this._objsMap.mapThree) { this._objsMap.mapThree.map.invalidateSize({ animate: false });}
+            if (this._objsMap.mapFour) { this._objsMap.mapFour.map.invalidateSize({ animate: false }); }
         },
         /**
         *鼠标点击第一个分屏
@@ -337,12 +321,12 @@ R.define([
         *@private
         */
         _clickEventOne: function () {
-            this._activeMap = this._objMap.mapOne;
-            this._oldActiveMap = this._objMap.mapOne;
+            this._activeMap = this._objsMap.mapOne;
+            this._oldActiveMap = this._objsMap.mapOne;
             this._addMapLable(this._mapContainer.containerOne);
 
             //触发自定义事件 标识当前活跃地图窗口改变
-            $(document).trigger(this._activeMapChange, this._activeMap);
+            $(document).trigger(this._activeMapChange,this, this._activeMap);
         },
         /**
         *鼠标点击第二个分屏
@@ -351,8 +335,8 @@ R.define([
         */
         _clickEventTow: function () {
 
-            this._activeMap = this._objMap.mapTow;
-            this._oldActiveMap = this._objMap.mapTow;
+            this._activeMap = this._objsMap.maptwo;
+            this._oldActiveMap = this._objsMap.maptwo;
             this._addMapLable(this._mapContainer.containerTow);
 
             $(document).trigger(this._activeMapChange, this._activeMap);
@@ -363,9 +347,8 @@ R.define([
         *@private
         */
         _clickEventThree: function () {
-
-            this._activeMap = this._objMap.mapThree;
-            this._oldActiveMap = this._objMap.mapThree;
+            this._activeMap = this._objsMap.mapThree;
+            this._oldActiveMap = this._objsMap.mapThree;
             this._addMapLable(this._mapContainer.containerThree);
 
             $(document).trigger(this._activeMapChange, this._activeMap);
@@ -376,9 +359,8 @@ R.define([
         *@private
         */
         _clickEventFour: function () {
-
-            this._activeMap = this._objMap.mapFour;
-            this._oldActiveMap = this._objMap.mapFour;
+            this._activeMap = this._objsMap.mapFour;
+            this._oldActiveMap = this._objsMap.mapFour;
             this._addMapLable(this._mapContainer.containerFour);
 
             $(document).trigger(this._activeMapChange, this._activeMap);
@@ -389,10 +371,10 @@ R.define([
         *@private
         */
         _clearMove: function () {
-            if (this.mapMoveOne) { this._objMap.mapOne.map.off('moveend', this._moveEndOne, this); this.mapMoveOne = false; }
-            if (this.mapMoveTow) { this._objMap.mapTow.map.off('moveend', this._moveEndTow, this); this.mapMoveTow = false; }
-            if (this.mapMoveThree) { this._objMap.mapThree.map.off('moveend', this._moveEndThree, this); this.mapMoveThree = false; }
-            if (this.mapMoveFour) { this._objMap.mapFour.map.off('moveend', this._moveEndFour, this); this.mapMoveFour = false; }
+            if (this.mapMoveOne) { this._objsMap.mapOne.map.off('moveend', this._moveEndOne, this); this.mapMoveOne = false; }
+            if (this.mapMoveTow) { this._objsMap.maptwo.map.off('moveend', this._moveEndTow, this); this.mapMoveTow = false; }
+            if (this.mapMoveThree) { this._objsMap.mapThree.map.off('moveend', this._moveEndThree, this); this.mapMoveThree = false; }
+            if (this.mapMoveFour) { this._objsMap.mapFour.map.off('moveend', this._moveEndFour, this); this.mapMoveFour = false; }
         },
         /**
         *moveed 事件结束后调用事件
@@ -400,8 +382,8 @@ R.define([
         *@private
         */
         _moveEndOne: function () {
-            var conterPoin = this._objMap.mapOne.map.getCenter(),
-                mapZoom = this._objMap.mapOne.map.getZoom();
+            var conterPoin = this._objsMap.mapOne.map.getCenter(),
+                mapZoom = this._objsMap.mapOne.map.getZoom();
             this._mapSerView({ one: false, conter: conterPoin, zoom: mapZoom });
         },
         /**
@@ -410,8 +392,8 @@ R.define([
         *@private
         */
         _moveEndTow: function () {
-            var conterPoin = this._objMap.mapTow.map.getCenter(),
-                mapZoom = this._objMap.mapTow.map.getZoom();
+            var conterPoin = this._objsMap.maptwo.map.getCenter(),
+                mapZoom = this._objsMap.maptwo.map.getZoom();
             this._mapSerView({ tow: false, conter: conterPoin, zoom: mapZoom });
         },
         /**
@@ -420,8 +402,8 @@ R.define([
         *@private
         */
         _moveEndThree: function () {
-            var conterPoin = this._objMap.mapThree.map.getCenter(),
-            mapZoom = this._objMap.mapThree.map.getZoom();
+            var conterPoin = this._objsMap.mapThree.map.getCenter(),
+            mapZoom = this._objsMap.mapThree.map.getZoom();
             this._mapSerView({ three: false, conter: conterPoin, zoom: mapZoom });
         },
         /**
@@ -430,8 +412,8 @@ R.define([
         *@private
         */
         _moveEndFour: function () {
-            var conterPoin = this._objMap.mapFour.map.getCenter(),
-            mapZoom = this._objMap.mapFour.map.getZoom();
+            var conterPoin = this._objsMap.mapFour.map.getCenter(),
+            mapZoom = this._objsMap.mapFour.map.getZoom();
             this._mapSerView({ four: false, conter: conterPoin, zoom: mapZoom });
         },
         /**
@@ -443,10 +425,10 @@ R.define([
             var _options = { one: true, tow: true, three: true, four: true };
             $.extend(_options, options);
 
-            if (this._objMap.mapOne && _options.one) { this._objMap.mapOne.map.setView(_options.conter, _options.zoom); }
-            if (this._objMap.mapTow && _options.tow) { this._objMap.mapTow.map.setView(_options.conter, _options.zoom); }
-            if (this._objMap.mapThree && _options.three) { this._objMap.mapThree.map.setView(_options.conter, _options.zoom); }
-            if (this._objMap.mapFour && _options.four) { this._objMap.mapFour.map.setView(_options.conter, _options.zoom); }
+            if (this._objsMap.mapOne && _options.one) { this._objsMap.mapOne.map.setView(_options.conter, _options.zoom); }
+            if (this._objsMap.maptwo && _options.tow) { this._objsMap.maptwo.map.setView(_options.conter, _options.zoom); }
+            if (this._objsMap.mapThree && _options.three) { this._objsMap.mapThree.map.setView(_options.conter, _options.zoom); }
+            if (this._objsMap.mapFour && _options.four) { this._objsMap.mapFour.map.setView(_options.conter, _options.zoom); }
         },
         /**
         *清除之前分屏的状态
@@ -458,21 +440,21 @@ R.define([
                 case "splitOne":
                     /*移除事件*/
                     if (this.mapMoveOne) {
-                        this._objMap.mapOne.map.off('moveend', this._moveEndOne, this);
+                        this._objsMap.mapOne.map.off('moveend', this._moveEndOne, this);
                         this.mapMoveOne = false;
                     }
-                    this._objMap.mapOne.map.off('click', this._clickEventOne, this);
+                    this._objsMap.mapOne.map.off('click', this._clickEventOne, this);
                     this.clickOne = false;
-                    if (this._objMap.mapTow) { this.mapMoveTow = false; this.clickTow = false; this._objMap.mapTow.map.clearAllEventListeners(); this._objMap.mapTow.map.remove(); this._objMap.mapTow.map = null; this._objMap.mapTow = null; L.DCI.App.pool.remove('mapTow') }
-                    if (this._objMap.mapThree) { this.mapMoveThree = false; this.clickTree = false; this._objMap.mapThree.map.clearAllEventListeners(); this._objMap.mapThree.map.remove(); this._objMap.mapThree.map = null; this._objMap.mapThree = null; L.DCI.App.pool.remove('mapThree') }
-                    if (this._objMap.mapFour) { this.mapMoveFour = false; this.clickFour = false; this._objMap.mapFour.map.clearAllEventListeners(); this._objMap.mapFour.map.remove(); this._objMap.mapFour.map = null; this._objMap.mapFour = null; L.DCI.App.pool.remove('mapFour') }
+                    if (this._objsMap.maptwo) { this.mapMoveTow = false; this.clickTow = false; this._objsMap.maptwo.map.clearAllEventListeners(); this._objsMap.maptwo.map.remove(); this._objsMap.maptwo.map = null; this._objsMap.maptwo = null; L.DCI.App.pool.remove('maptwo') }
+                    if (this._objsMap.mapThree) { this.mapMoveThree = false; this.clickTree = false; this._objsMap.mapThree.map.clearAllEventListeners(); this._objsMap.mapThree.map.remove(); this._objsMap.mapThree.map = null; this._objsMap.mapThree = null; L.DCI.App.pool.remove('mapThree') }
+                    if (this._objsMap.mapFour) { this.mapMoveFour = false; this.clickFour = false; this._objsMap.mapFour.map.clearAllEventListeners(); this._objsMap.mapFour.map.remove(); this._objsMap.mapFour.map = null; this._objsMap.mapFour = null; L.DCI.App.pool.remove('mapFour') }
                     break;
                 case "splitTow":
-                    if (this._objMap.mapThree) { this.mapMoveThree = false; this.clickTree = false; this._objMap.mapThree.map.clearAllEventListeners(); this._objMap.mapThree.map.remove(); this._objMap.mapThree.map = null; this._objMap.mapThree = null; L.DCI.App.pool.remove('mapThree') }
-                    if (this._objMap.mapFour) { this.mapMoveFour = false; this.clickFour = false; this._objMap.mapFour.map.clearAllEventListeners(); this._objMap.mapFour.map.remove(); this._objMap.mapFour.map = null; this._objMap.mapFour = null; L.DCI.App.pool.remove('mapFour') }
+                    if (this._objsMap.mapThree) { this.mapMoveThree = false; this.clickTree = false; this._objsMap.mapThree.map.clearAllEventListeners(); this._objsMap.mapThree.map.remove(); this._objsMap.mapThree.map = null; this._objsMap.mapThree = null; L.DCI.App.pool.remove('mapThree') }
+                    if (this._objsMap.mapFour) { this.mapMoveFour = false; this.clickFour = false; this._objsMap.mapFour.map.clearAllEventListeners(); this._objsMap.mapFour.map.remove(); this._objsMap.mapFour.map = null; this._objsMap.mapFour = null; L.DCI.App.pool.remove('mapFour') }
                     break;
                 case "splitTree":
-                    if (this._objMap.mapFour) { this.mapMoveFour = false; this.clickFour = false; this._objMap.mapFour.map.clearAllEventListeners(); this._objMap.mapFour.map.remove(); this._objMap.mapFour.map = null; this._objMap.mapFour = null; L.DCI.App.pool.remove('mapFour') }
+                    if (this._objsMap.mapFour) { this.mapMoveFour = false; this.clickFour = false; this._objsMap.mapFour.map.clearAllEventListeners(); this._objsMap.mapFour.map.remove(); this._objsMap.mapFour.map = null; this._objsMap.mapFour = null; L.DCI.App.pool.remove('mapFour') }
                     break;
             }
         },
@@ -488,8 +470,15 @@ R.define([
             $mapContainer.find('.maplable').addClass('active');
         },
         getType: function () {
-            return "UMAP.MultiMap";
-        }
+            return "UMAP.core.MultiMap";
+        },
+        /**
+        *移除加载等待动画
+        *@method _removeSpinner
+        */
+        _removeSpinner:function(){
+            $("#centerpanel-spinner").remove();
+        },
     });
-    return UMAP.MultiMap;
+    return UMAP.Core.MultiMap;
 });

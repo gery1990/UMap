@@ -7,10 +7,12 @@
 */
 R.define([
     "esri/request",
-    "layout/alert"
+    "common/alert"
 ], function (esriRequest,Alert) {
-    UMAP.Layout.LeftMenu = UMAP.Layout.extend({
+    UMAP.Layout.LeftMenu = UMAP.Layout.BaseObject.extend({
         container:"side-menu",
+        //存储已选择的菜单
+        selectedItems:{},
         /**
         *界面标签
         *@property body
@@ -19,7 +21,7 @@ R.define([
         templateLi:{
             rootNode:'<li><a><i class="icon-stack2"></i><span class="nav-label">{0}</span><span class="fa arrow"></span></a>{1}</li>',
             parentNode:'<li><a>{0}<span class="fa arrow"></span></a>{1}</li>',
-            childNode:'<li><a class="J_menuItem" source="{1}" data-index="0">{0}</a></li>'
+            childNode:'<li><a class="J_menuItem" id="{1}" source="{2}" servicetype="{3}" data-index="0">{0}</a></li>'
         },
         templateUl:[
             '<ul class="nav nav-second-level">{0}</ul>',
@@ -30,7 +32,7 @@ R.define([
         *@method initialize
         */
         initialize: function () {
-            UMAP.Layout.prototype.initialize.call(this);
+            UMAP.Layout.BaseObject.prototype.initialize.call(this);
             this.id = "leftmenu";
             this.body = $("#"+this.container);
             this._getMenu();
@@ -72,7 +74,7 @@ R.define([
                     level++;
                     let hArray=[];
                     let title="";
-                    let isLeafNode=parent.childNodes.length>0?false:true;
+                    let isLeafNode=(!parent.childNodes || parent.childNodes.length>0)?false:true;
                     if(!isLeafNode){
                         let childHtmlArray=[];
                         parent.childNodes.forEach(function(item){
@@ -86,7 +88,7 @@ R.define([
                             hArray.push($.format(this.templateLi.parentNode,parent.title,$.format(this.templateUl[level],childHtmlArray.join(""))));
                         }
                     }else{
-                        hArray.push($.format(this.templateLi.childNode,parent.title,parent.sourceUrl));
+                        hArray.push($.format(this.templateLi.childNode,parent.title,parent.id,parent.sourceUrl,parent.serviceType));
                     }
                     return hArray.join("");
                 }
@@ -118,14 +120,39 @@ R.define([
                 if ($(window).width() < 769) {
                     NavToggle();
                 }
-            });
+                let $target=$(arguments[0].currentTarget || arguments[0].target);
+                if($target && $target.hasClass("J_menuItem")){
+                    //服务加载或移除
+                    [id,url,serverType]=[$target.attr("id"),$target.attr("source"),$target.attr("servicetype")];
+                    this._addService(id,url,serverType);
+                    let isAdd=$target.hasClass("selected");
+                    if(isAdd){
+                        $target.removeClass("selected");
+                        $target.find("i").remove();
+                        delete this.selectedItems[$target.id];
+                    }else{
+                        // let innertText=$target.text();
+                        // $target.html("<i class='fa fa-check'></i>"+innertText);
+                        $target.append("<i class='fa fa-check'></i>");
+                        $target.addClass("selected");
+                        this.selectedItems[id]={url:url,type:serverType};
+                    }
+                }
+            }.bind(this));
         },
         /**
         *移除加载等待动画
-        *@method _buildMenuDom
+        *@method _removeSpinner
         */
         _removeSpinner:function(){
             $("#menu-spinner").remove();
+        },
+        /**
+        *加载服务
+        *@method _addService
+        */
+        _addService:function(id,sourceUrl){
+
         }
     });
     return UMAP.Layout.LeftMenu;

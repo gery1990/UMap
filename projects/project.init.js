@@ -1,16 +1,19 @@
 //类似 require的config属性，将复杂的url地址映射为简单名称
 var Default_Paths = {
     "UMAP": './js/UMAP.js',
+    "core/namespace":"./core/core.namespace.js",
     "core/init":"./core/core.init.js",
     "core/pool":"./core/core.pool.js",
     "core/baseobject":"./core/core.baseobject.js",
     "core/application":"./core/core.application.js",
     "core/map":"./core/core.map.js",
     "core/multimap":"./core/core.multimap.js",
-    "layout/alert":"./layout/layout.alert.js",
-    "layout/base":"./layout/layout.base.js",
-    "layout/centerpanel":"./layout/layout.centerpanel.js",
-    "layout/leftmenu":"./layout/layout.leftmenu.js"
+    "common/alert":"./common/common.alert.js",
+    "layout/baseobject":"./layout/layout.baseobject.js",
+    "layout/centerpanel":"./layout/layout.centerPanel.js",
+    "layout/leftmenu":"./layout/layout.leftMenu.js",
+    "layout/navtools":"./layout/layout.navTools.js",
+    "layout/rightpanel":"./layout/layout.rightPanel.js"
 }
 
 var Default_Shims = {

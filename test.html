@@ -49,10 +49,10 @@
             <div class="row border-bottom">
                 <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
                     <div class="navbar-header">
-                        <div class="navbar-left-buttons">
-                            <a class="navbar-minimalize" title="折叠菜单栏"><i class="fa fa-bars"></i> </a>
+                        <div class="navbar-left-buttons" id="navTools">
+                            <!-- <a class="navbar-minimalize" title="折叠菜单栏"><i class="fa fa-bars"></i> </a>
                             <a class="navbar-showToolsBar" title="工具栏"><i class="icon icon-hammer"></i> </a>
-                            <a title="图层控制"><i class="icon-stack"></i> </a>
+                            <a title="图层控制"><i class="icon-stack"></i> </a> -->
                         </div>
                     </div>
                     <ul class="nav navbar-top-links navbar-right">
@@ -78,12 +78,15 @@
             <!--主窗体工具条结束-->
             <!--主窗体地图窗体开始-->
             <div class="row page-wrapper-container max-page-wrapper-container">
-                <a class="max-right btn btn-primary animated fadeInRight" title="打开"><i class="fa fa-bookmark"></i></a>
                 <div class="col-sm-12 col-md-12 page-wrapper-content">
                     <div class="J_mainContent" id="content-main">
-                        <div id="centerpanel"></div>
+                        <div id="centerpanel">
+                            <div id="centerpanel-spinner">
+                                <div class="sk-spinner sk-spinner-pulse"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="page-wrapper-tools umap-animate">
+                    <div class="page-wrapper-tools umap-animate" id="tools">
                         <div class="btn-toolbar" role="toolbar" aria-label="...">
                             <div class="btn-group" role="group" aria-label="tools-measure">
                                 <a class="tools-bar" title="测距"><i class="icon icon-ruler-solid"></i></a>
@@ -107,17 +110,6 @@
                     </div>
                 </div>
                 <div class="page-wrapper-right">
-                    <div class="content-tabs">
-                        <button class="roll-nav roll-left J_tabLeft"><i class="fa fa-backward"></i></button>
-                        <nav class="page-tabs J_menuTabs">
-                            <div class="page-tabs-content">
-                                <a href="javascript:;" class="active J_menuTab" data-id="index_v1.html">首页</a>
-                            </div>
-                        </nav>
-                        <button class="roll-nav roll-right J_tabRight"><i class="fa fa-forward"></i>
-                        </button>
-                        <a class="roll-nav roll-right min-right" title="隐藏"><i class="fa fa-times"></i></a>
-                    </div>
                 </div>
             </div>
             <!--主窗体地图窗体结束-->

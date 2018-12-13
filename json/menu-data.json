@@ -14,7 +14,8 @@
 					"id":"2",
 					"parent":"1",
 					"title":"行政区界限",
-					"sourceUrl":"",
+					"sourceUrl":"http://map.geoq.cn/arcgis/rest/services/SimpleFeature/ChinaBoundaryLine/MapServer",
+					"serviceType":"MapServer",
 					"childNodes":[]
 				},
 				{
@@ -27,21 +28,24 @@
 							"id":"4",
 							"parent":"3",
 							"title":"总规",
-							"sourceUrl":"xxxxxxx",
+							"sourceUrl":"http://map.geoq.cn/arcgis/rest/services/SimpleFeature/ChinaBoundaryLine/MapServer",
+							"serviceType":"MapServer",
 							"childNodes":[]
 						},
 						{
 							"id":"5",
 							"parent":"3",
 							"title":"详细规划",
-							"sourceUrl":"xxxxxxx",
+							"sourceUrl":"http://map.geoq.cn/arcgis/rest/services/SimpleFeature/ChinaBoundaryLine/MapServer",
+							"serviceType":"MapServer",
 							"childNodes":[]
 						},
 						{
 							"id":"7",
 							"parent":"3",
 							"title":"红线",
-							"sourceUrl":"xxxxxxx",
+							"sourceUrl":"http://map.geoq.cn/arcgis/rest/services/SimpleFeature/ChinaBoundaryLine/MapServer",
+							"serviceType":"MapServer",
 							"childNodes":[]
 						}
 					]
@@ -50,7 +54,8 @@
 					"id":"6",
 					"parent":"1",
 					"title":"业务数据",
-					"sourceUrl":"",
+					"sourceUrl":"http://map.geoq.cn/arcgis/rest/services/SimpleFeature/ChinaBoundaryLine/MapServer",
+					"serviceType":"MapServer",
 					"childNodes":[]
 				}
 			]

@@ -1,3 +1,4 @@
+//扩展jQuery的format功能
 $.format = function (source, params) {
     if (arguments.length == 1)
         return function () {
@@ -18,40 +19,6 @@ $.format = function (source, params) {
 };
 //公共配置
 $(document).ready(function () {
-
-    // 打开右侧边栏
-    $('.right-sidebar-toggle').click(function () {
-        $('#right-sidebar').toggleClass('sidebar-open');
-    });
-
-    // 右侧边栏使用slimscroll
-    $('.sidebar-container').slimScroll({
-        height: '100%',
-        railOpacity: 0.4,
-        wheelStep: 10
-    });
-
-    // 打开聊天窗口
-    $('.open-small-chat').click(function () {
-        $(this).children().toggleClass('fa-comments').toggleClass('fa-remove');
-        $('.small-chat-box').toggleClass('active');
-    });
-
-    // 聊天窗口使用slimscroll
-    $('.small-chat-box .content').slimScroll({
-        height: '234px',
-        railOpacity: 0.4
-    });
-
-    // Small todo handler
-    $('.check-link').click(function () {
-        var button = $(this).find('i');
-        var label = $(this).next('span');
-        button.toggleClass('fa-check-square').toggleClass('fa-square-o');
-        label.toggleClass('todo-completed');
-        return false;
-    });
-
     //固定菜单栏
     $(function () {
         $('.sidebar-collapse').slimScroll({
@@ -61,80 +28,6 @@ $(document).ready(function () {
         });
     });
 
-
-    // 菜单切换
-    $('.navbar-minimalize').click(function () {
-        $("body").toggleClass("mini-navbar");
-        SmoothlyMenu();
-    });
-
-    // 工具栏弹出
-    $('.navbar-showToolsBar').click(function(){
-        var tarBox=$('.page-wrapper-tools');
-        if(tarBox.hasClass("toolsfadeIn")){
-            tarBox.removeClass("toolsfadeIn");
-            tarBox.addClass("toolsfadeOut");
-        }else if(tarBox.hasClass("toolsfadeOut")){
-            tarBox.removeClass("toolsfadeOut");
-            tarBox.addClass("toolsfadeIn");
-        }else{
-            tarBox.addClass("toolsfadeIn");
-        }
-    });
-    $(".tools-bar-close").click(function(){
-        var tarBox=$('.page-wrapper-tools');
-        tarBox.removeClass("toolsfadeIn");
-        tarBox.addClass("toolsfadeOut");
-    });
-
-    // 结果窗体切换
-    $('.min-right').click(function () {
-        if(!$(".page-wrapper-container").hasClass("max-page-wrapper-container")){
-            $('.page-wrapper-right').hide();
-            $(".page-wrapper-container").addClass("max-page-wrapper-container");
-            $(".page-wrapper-content").removeClass("col-md-9 col-sm-6");
-            $(".page-wrapper-content").addClass("col-sm-12 col-md-12");
-            $(".page-wrapper-right").removeClass("col-md-3");
-        }
-    });
-    $(".max-right").click(function(){
-        if($(".page-wrapper-container").hasClass("max-page-wrapper-container")){
-            $(".page-wrapper-content").addClass("col-md-9 col-sm-6");
-            $(".page-wrapper-content").removeClass("col-sm-12col-md-12");
-            $(".page-wrapper-right").addClass("col-md-3");
-            $(".page-wrapper-container").removeClass("max-page-wrapper-container");
-            $('.page-wrapper-right').fadeIn(500);
-        }
-    });
-
-    // 侧边栏高度
-    function fix_height() {
-        var heightWithoutNavbar = $("body > #wrapper").height() - 61;
-        $(".sidebard-panel").css("min-height", heightWithoutNavbar + "px");
-    }
-    fix_height();
-
-    $(window).bind("load resize click scroll", function () {
-        if (!$("body").hasClass('body-small')) {
-            fix_height();
-        }
-    });
-
-    //侧边栏滚动
-    $(window).scroll(function () {
-        if ($(window).scrollTop() > 0 && !$('body').hasClass('fixed-nav')) {
-            $('#right-sidebar').addClass('sidebar-top');
-        } else {
-            $('#right-sidebar').removeClass('sidebar-top');
-        }
-    });
-
-    $('.full-height-scroll').slimScroll({
-        height: '100%'
-    });
-
-
-    $('.nav-close').click(NavToggle);
 
     //ios浏览器兼容性处理
     if (/(iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent)) {
@@ -150,9 +43,6 @@ $(window).bind("load resize", function () {
     }
 });
 
-function NavToggle() {
-    $('.navbar-minimalize').trigger('click');
-}
 
 function SmoothlyMenu() {
     if (!$('body').hasClass('mini-navbar')) {
@@ -175,7 +65,6 @@ function SmoothlyMenu() {
 
 //主题设置
 $(function () {
-
     // 顶部菜单固定
     $('#fixednavbar').click(function () {
         if ($('#fixednavbar').is(':checked')) {
@@ -197,27 +86,6 @@ $(function () {
 
             if (localStorageSupport) {
                 localStorage.setItem("fixednavbar", 'off');
-            }
-        }
-    });
-
-
-    // 收起左侧菜单
-    $('#collapsemenu').click(function () {
-        if ($('#collapsemenu').is(':checked')) {
-            $("body").addClass('mini-navbar');
-            SmoothlyMenu();
-
-            if (localStorageSupport) {
-                localStorage.setItem("collapse_menu", 'on');
-            }
-
-        } else {
-            $("body").removeClass('mini-navbar');
-            SmoothlyMenu();
-
-            if (localStorageSupport) {
-                localStorage.setItem("collapse_menu", 'off');
             }
         }
     });
@@ -275,9 +143,6 @@ $(function () {
         var fixednavbar = localStorage.getItem("fixednavbar");
         var boxedlayout = localStorage.getItem("boxedlayout");
 
-        if (collapse == 'on') {
-            $('#collapsemenu').prop('checked', 'checked')
-        }
         if (fixednavbar == 'on') {
             $('#fixednavbar').prop('checked', 'checked')
         }

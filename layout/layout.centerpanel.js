@@ -6,24 +6,24 @@
 *@extends UMAP.Layout
 */
 R.define([
-    "layout/base"
+    "layout/baseobject"
 ], function () {
-    UMAP.Layout.CenterPanel = UMAP.Layout.extend({
+    UMAP.Layout.CenterPanel = UMAP.Layout.BaseObject.extend({
         /**
         *界面标签
         *@property body
         *@type {String}
         */
-        tempHtml:'<div id="map-main" class="col-sm-6 map-main"></div>'
-            +'<div id="map-tow" class="col-sm-6 map-tow"></div>'
-            +'<div id="map-three" class="col-sm-6 map-three"></div>'
-            +'<div id="map-four" class="col-sm-6 map-four"></div>',
+        tempHtml:'<div id="mapone" class="col-sm-6 mapone"></div>'
+            +'<div id="maptwo" class="col-sm-6 maptwo"></div>'
+            +'<div id="mapthree" class="col-sm-6 mapthree"></div>'
+            +'<div id="mapfour" class="col-sm-6 mapfour"></div>',
         /**
         *初始化
         *@method initialize
         */
         initialize: function () {
-            UMAP.Layout.prototype.initialize.call(this);
+            UMAP.Layout.BaseObject.prototype.initialize.call(this);
             this.id = "centerPanel";
             this.body = $("#centerpanel");
             this.body.html(this.tempHtml);
