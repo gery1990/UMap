@@ -1,4 +1,3 @@
-//扩展jQuery的format功能
 $.format = function (source, params) {
     if (arguments.length == 1)
         return function () {
@@ -19,6 +18,40 @@ $.format = function (source, params) {
 };
 //公共配置
 $(document).ready(function () {
+
+    // 打开右侧边栏
+    $('.right-sidebar-toggle').click(function () {
+        $('#right-sidebar').toggleClass('sidebar-open');
+    });
+
+    // 右侧边栏使用slimscroll
+    $('.sidebar-container').slimScroll({
+        height: '100%',
+        railOpacity: 0.4,
+        wheelStep: 10
+    });
+
+    // 打开聊天窗口
+    $('.open-small-chat').click(function () {
+        $(this).children().toggleClass('fa-comments').toggleClass('fa-remove');
+        $('.small-chat-box').toggleClass('active');
+    });
+
+    // 聊天窗口使用slimscroll
+    $('.small-chat-box .content').slimScroll({
+        height: '234px',
+        railOpacity: 0.4
+    });
+
+    // Small todo handler
+    $('.check-link').click(function () {
+        var button = $(this).find('i');
+        var label = $(this).next('span');
+        button.toggleClass('fa-check-square').toggleClass('fa-square-o');
+        label.toggleClass('todo-completed');
+        return false;
+    });
+
     //固定菜单栏
     $(function () {
         $('.sidebar-collapse').slimScroll({
@@ -27,7 +60,6 @@ $(document).ready(function () {
             alwaysVisible: false
         });
     });
-
 
     //ios浏览器兼容性处理
     if (/(iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent)) {
@@ -43,6 +75,9 @@ $(window).bind("load resize", function () {
     }
 });
 
+function NavToggle() {
+    $('.navbar-minimalize').trigger('click');
+}
 
 function SmoothlyMenu() {
     if (!$('body').hasClass('mini-navbar')) {
@@ -65,6 +100,7 @@ function SmoothlyMenu() {
 
 //主题设置
 $(function () {
+
     // 顶部菜单固定
     $('#fixednavbar').click(function () {
         if ($('#fixednavbar').is(':checked')) {

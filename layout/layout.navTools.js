@@ -6,8 +6,10 @@
 *@extends UMAP.Layout
 */
 R.define([
+    "common/alert",
+    "controls/measure",
     "layout/baseobject"
-], function () {
+], function (Alert,Measure) {
     UMAP.Layout.NavTools = UMAP.Layout.BaseObject.extend({
         /**
         *界面标签
@@ -29,13 +31,13 @@ R.define([
                     container:'tools',
                     tempHtml:`<div class="btn-toolbar" role="toolbar" aria-label="...">
                          <div class="btn-group" role="group" aria-label="tools-measure">
-                             <a class="tools-bar" title="测距"><i class="icon icon-ruler-solid"></i></a>
-                             <a class="tools-bar" title="测面积"><i class="icon icon icon-ruler"></i></a>
+                             <a class="tools-bar" title="测距" id="mesuare-distance"><i class="icon icon-ruler-solid"></i></a>
+                             <a class="tools-bar" title="测面积" id="mesuare-area"><i class="icon icon icon-ruler"></i></a>
                              <span class="tools-bar-split"></span>
-                             <a class="tools-bar" title="1屏"><i class="icon icon-splitone"></i></a>
-                             <a class="tools-bar" title="2屏"><i class="icon icon-splittwo"></i></a>
-                             <a class="tools-bar" title="3屏"><i class="icon icon-splitthree"></i></a>
-                             <a class="tools-bar" title="4屏"><i class="icon icon-splitfour"></i></a>
+                             <a class="tools-bar" title="1屏" id="multiMap-one"><i class="icon icon-splitone"></i></a>
+                             <a class="tools-bar" title="2屏" id="multiMap-two"><i class="icon icon-splittwo"></i></a>
+                             <a class="tools-bar" title="3屏" id="multiMap-three"><i class="icon icon-splitthree"></i></a>
+                             <a class="tools-bar" title="4屏" id="multiMap-four"><i class="icon icon-splitfour"></i></a>
                              <span class="tools-bar-split"></span>
                              <a class="tools-bar" title="标点"><i class="icon icon-location"></i></a>
                              <a class="tools-bar" title="标线"><i class="icon icon-timeline"></i></a>
@@ -61,14 +63,22 @@ R.define([
         *@method initialize
         */
         initialize: function () {
-            UMAP.Layout.BaseObject.prototype.initialize.call(this);
-            this.id = "navTools";
-            this.body = $("#navTools");
-            this.bottons.forEach(function(btn){
-                this.body.append(btn.tempHtml);
-            }.bind(this));
+            try{
+                UMAP.Layout.BaseObject.prototype.initialize.call(this);
+                this.id = "navTools";
+                this.body = $("#navTools");
+                this.bottons.forEach(function(btn){
+                    this.body.append(btn.tempHtml);
+                    if(btn.content && btn.content!={}){
+                        let $contentDom=$("#"+btn.content.container)
+                        $contentDom.html(btn.content.tempHtml);
+                    }
+                }.bind(this));
 
-            this._bindEvents();
+                this._bindEvents();
+            }catch(e){
+                Alert.warning(e.message);
+            }
         },
         /**
         *绑定事件
@@ -84,7 +94,7 @@ R.define([
         _addClickEvent:function(objs){
             Object.keys(objs).forEach(function(key){
                 if(typeof(objs[key])=='function'){
-                    $("#"+key).click(objs[key]);
+                    $("#"+key).click(objs[key].bind(this));
                 }
             }.bind(this));
         },
@@ -102,7 +112,7 @@ R.define([
                     SmoothlyMenu();
                 },
                 "toolsbar":function(){
-                    var tarBox=$('.page-wrapper-tools');
+                    let tarBox=$('.page-wrapper-tools');
                     if(tarBox.hasClass("toolsfadeIn")){
                         tarBox.removeClass("toolsfadeIn");
                         tarBox.addClass("toolsfadeOut");
@@ -114,12 +124,38 @@ R.define([
                     }
                 },
                 "toolsbarClose":function(){
-                    var tarBox=$('.page-wrapper-tools');
+                    let tarBox=$('.page-wrapper-tools');
                     tarBox.removeClass("toolsfadeIn");
                     tarBox.addClass("toolsfadeOut");
+                },
+                "multiMap-one":function(){
+                    this.__splitMap(1);
+                },
+                "multiMap-two":function(){
+                    this.__splitMap(2);
+                },
+                "multiMap-three":function(){
+                    this.__splitMap(3);
+                },
+                "multiMap-four":function(){
+                    this.__splitMap(4);
+                },
+                "mesuare-distance":function(){
+                    let multiMapObj=UMAP.app.pool.get("MultiMap");
+                    let measuare=new UMAP.Controls.MeasureDistance(multiMapObj.getActiveMap());
+                    measuare.start();
+                },
+                "mesuare-area":function(){
+                    let multiMapObj=UMAP.app.pool.get("MultiMap");
+                    let measuare=new UMAP.Controls.MeasureArea(multiMapObj.getActiveMap());
+                    measuare.start();
                 }
             }
         },
+        __splitMap:function(num){
+            let multiMapObj=UMAP.app.pool.get("MultiMap");
+            multiMapObj.splitMap(num);
+        }
     });
     return UMAP.Layout.NavTools;
 });

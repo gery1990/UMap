@@ -64,12 +64,6 @@ Project_ParamConfig = {
             position:'bottom-right'
         },
         {
-            id:'LegendWidget',
-            description:'图例',
-            visible:true,
-            position:'bottom-left'
-        },
-        {
             id:'LayerList',
             description:'图层控制',
             visible:true,
@@ -78,6 +72,12 @@ Project_ParamConfig = {
         {
             id:'Home',
             description:'返回初始界面',
+            visible:true,
+            position:'top-left'
+        },
+        {
+            id:'LegendWidget',
+            description:'图例',
             visible:true,
             position:'top-left'
         },

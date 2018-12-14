@@ -29,6 +29,12 @@ R.define([
         */
         map: null,
         /**
+        *地图对象
+        *@property view
+        *@type {Object}
+        */
+        view:null,
+        /**
         *地图容器
         *@property _container
         *@type {Object}
@@ -127,7 +133,7 @@ R.define([
         initialize: function (options) {
             try{
                 UMAP.Core.BaseObject.prototype.initialize.call(this);
-                this.container = document.getElementById(options.container);
+                this._container = document.getElementById(options.container);
                 this.id = options.id;
                 //======================初始化Map开始======================/
                 this.basemaps=[];
@@ -223,6 +229,9 @@ R.define([
         _addEvents:function(){
             this.view.on('focus',function(){
                 connect.publish("activeMapChange",{id:this.id})
+            }.bind(this));
+            this.view.on("blur",function(){
+                this._container
             }.bind(this));
         },
         /**
@@ -435,7 +444,9 @@ R.define([
         *@method destroy
         */
         destroy: function () {
+            this.map.destroy();
             this.map.remove();
+            this.view.destroy();
             this.view=null;
             this.map=null;
         }

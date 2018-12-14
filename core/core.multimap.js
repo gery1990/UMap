@@ -108,9 +108,9 @@ R.define([
         },
 
         /**
-        *分屏
-        *@method splitMap
-        *@param splitNum {Number} 分屏数，值为1~4之间
+        *活动map改变
+        *@method _activeMapChange
+        *@param evt
         */
         _activeMapChange:function(evt){
             this._activeMap=this._objsMap[evt.id];

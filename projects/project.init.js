@@ -9,6 +9,7 @@ var Default_Paths = {
     "core/map":"./core/core.map.js",
     "core/multimap":"./core/core.multimap.js",
     "common/alert":"./common/common.alert.js",
+    "controls/measure":"./controls/controls.measure.js",
     "layout/baseobject":"./layout/layout.baseobject.js",
     "layout/centerpanel":"./layout/layout.centerPanel.js",
     "layout/leftmenu":"./layout/layout.leftMenu.js",
