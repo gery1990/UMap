@@ -46,6 +46,7 @@ R.define([
                              <a class="tools-bar" title="多边形"><i class="icon icon-draw-polygon-solid"></i></a>
                              <a class="tools-bar" title="文本"><i class="icon icon-text-color"></i></a>
                              <span class="tools-bar-split"></span>
+                             <a class="tools-bar" id="clearDraw" title="清屏"><i class="fa fa-trash"></i></a>
                              <a class="tools-bar tools-bar-close" id="toolsbarClose" title="关闭"><i class="fa fa-close"></i></a>
                          </div>
                      </div>`
@@ -149,12 +150,31 @@ R.define([
                     let multiMapObj=UMAP.app.pool.get("MultiMap");
                     let measuare=new UMAP.Controls.MeasureArea(multiMapObj.getActiveMap());
                     measuare.start();
+                },
+                "clearDraw":function(){
+                    this.__clearDraw();
+
                 }
             }
         },
+        /**
+        *分屏
+        *@method __splitMap
+        */
         __splitMap:function(num){
             let multiMapObj=UMAP.app.pool.get("MultiMap");
             multiMapObj.splitMap(num);
+        },
+        /**
+        *清除地图绘制的图形
+        *@method __clearDraw
+        */
+        __clearDraw:function(){
+            let mapObj=UMAP.app.pool.get("MultiMap").getActiveMap();
+            //清理测量图层
+            let graphicLayer=mapObj.map.findLayerById('mesuareTempLayer');
+            graphicLayer.removeAll();
+            //清理临时标注
         }
     });
     return UMAP.Layout.NavTools;

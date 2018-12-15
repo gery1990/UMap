@@ -19,20 +19,57 @@ R.define([
         _lengthUnitShortName: '公里',
         _areaUnit: "square-kilometers",
         _areaUnitShortName: '平方公里',
+        _getPointGraphic:function(geo) {
+            return new Graphic({
+                geometry: {
+                    type: "point",
+                    x: geo.x,
+                    y: geo.y,
+                    spatialReference:geo.spatialReference
+                },
+                symbol: {
+                    type: "simple-marker", // autocasts as new SimpleFillSymbol
+                    color: [255, 255, 255],
+                    size:"6px",
+                    style: "solid",
+                    outline: { // autocasts as SimpleLineSymbol
+                        color: [116, 142, 168,0.8],
+                        width: 2
+                    }
+                },
+            });
+        },
+        _getTextGraphic: function(position, text) {
+            return new Graphic({
+                geometry: position,
+                symbol: {
+                    type: "text",
+                    color: [47, 64, 80, 0.8],
+                    text: text,
+                    xoffset: 3,
+                    yoffset: 3,
+                    font: { // autocast as Font
+                        size: 14,
+                        family: "sans-serif",
+                        weight: "bold"
+                    }
+                }
+            });
+        },
         initialize: function(mapObj) {
             this._view = mapObj.view;
             this._map = mapObj.map;
             this._draw = new esriDraw({
                 view: this._view
             });
-            this._graphciLayer = this._map.findLayerById(this.tempLayerId);
+            this._graphicLayer = this._map.findLayerById(this.tempLayerId);
             if (this._map.findLayerById(this.tempLayerId)) {
-                this._graphciLayer.removeAll();
+                this._graphicLayer.removeAll();
             } else {
-                this._graphciLayer = new GraphicLayer({
+                this._graphicLayer = new GraphicLayer({
                     id: this.tempLayerId
                 });
-                this._map.add(this._graphciLayer);
+                this._map.add(this._graphicLayer);
             }
         },
         /**
@@ -75,7 +112,7 @@ R.define([
          *@type {Object}
          */
         clear: function() {
-            this._graphciLayer.removeAll();
+            this._graphicLayer.removeAll();
         },
         /**
          *退出测量
@@ -83,7 +120,7 @@ R.define([
          *@type {Object}
          */
         destroy: function() {
-            this._map.remove(this._graphciLayer);
+            this._map.remove(this._graphicLayer);
         }
     });
 
@@ -100,28 +137,48 @@ R.define([
             this._action.on("draw-complete", this.drawGeo.bind(this));
         },
         labelInfo: function(geom, res) {
-            var graphic = new Graphic({
-                geometry: geom.extent.center,
-                symbol: {
-                    type: "text",
-                    color: [47, 64, 80, 0.8],
-                    text: res.toFixed(2) + " " + this._lengthUnitShortName,
-                    xoffset: 3,
-                    yoffset: 3,
-                    font: { // autocast as Font
-                        size: 14,
-                        family: "sans-serif",
-                        weight: "bold"
-                    }
-                }
-            });
-            this._graphciLayer.add(graphic);
+            let g=this._getTextGraphic(geom.extent.center,res.toFixed(2) + " " + this._lengthUnitShortName);
+            this._graphicLayer.add(g);
+        },
+        _pointVertice: function(vertices) {
+            //标记线段的顶点
+            vertices.forEach(function(vertice) {
+                let g = this._getPointGraphic({
+                    x: vertice[0],
+                    y: vertice[1],
+                    spatialReference: this._view.spatialReference
+                })
+                this._graphicLayer.add(g);
+            }.bind(this));
+        },
+        _pointStartText:function(geo){
+            //标记线段起点text
+            let g=this._getTextGraphic(
+                {
+                    type: "point",
+                    x: geo[0],
+                    y: geo[1],
+                    spatialReference:this._view.spatialReference
+                },"起点"
+            );
+            this._graphicLayer.add(g);
         },
         drawGeo: function(event) {
             var paths = event.vertices;
-            //remove existing graphic
-            this._graphciLayer.removeAll();
             let __view = this._view;
+            //避免两个点过于相近，判断两个点距离是否小于15个屏幕像素
+            if(event.type=='vertex-add' && event.vertices.length>1){
+                let prePoint={type:'point',x:event.vertices[event.vertexIndex-1][0],y:event.vertices[event.vertexIndex-1][1],spatialReference:__view.spatialReference},
+                    curPoint={type:'point',x:event.vertices[event.vertexIndex][0],y:event.vertices[event.vertexIndex][1],spatialReference:__view.spatialReference};
+                let preScreenP=__view.toScreen(prePoint),
+                    curScreenP=__view.toScreen(curPoint);
+                if(Math.abs(preScreenP.x-curScreenP.x)<15){
+                    event.preventDefault();
+                    return;
+                }
+            }
+
+            this._graphicLayer.removeAll();
             const graphic = new Graphic({
                 geometry: {
                     type: "polyline",
@@ -130,7 +187,7 @@ R.define([
                 },
                 symbol: {
                     type: "simple-line", // autocasts as new SimpleFillSymbol
-                    color: [116, 142, 168, 0.4],
+                    color: [116, 142, 168, 0.6],
                     width: 4,
                     cap: "round",
                     join: "round"
@@ -138,12 +195,12 @@ R.define([
             });
 
             let polyline = graphic.geometry;
-            // check if the polyline intersects itself.
+            //检查线条是否自相交
             const intersectingSegment = getIntersectingSegment(polyline);
             if (intersectingSegment) {
-                this._graphciLayer.addMany([graphic, intersectingSegment]);
+                this._graphicLayer.addMany([graphic, intersectingSegment]);
             } else {
-                this._graphciLayer.add(graphic);
+                this._graphicLayer.add(graphic);
             }
             if (intersectingSegment) {
                 event.preventDefault();
@@ -156,6 +213,10 @@ R.define([
                 }
             }
             this.labelInfo(polyline, lineLength);
+            this._pointVertice(event.vertices);
+            if(event.vertices.length>1){
+                this._pointStartText(event.vertices[0]);
+            }
 
             function isSelfIntersecting(polyline) {
                 if (polyline.paths[0].length < 3) {
@@ -172,7 +233,7 @@ R.define([
                     return new Graphic({
                         geometry: getLastSegment(polyline),
                         symbol: {
-                            type: "simple-line", // autocasts as new SimpleLineSymbol
+                            type: "simple-line",
                             style: "short-dot",
                             width: 3.5,
                             color: "yellow"
@@ -185,9 +246,7 @@ R.define([
             function getLastSegment(polyline) {
                 const line = polyline.clone();
                 const lastXYPoint = line.removePoint(0, line.paths[0].length - 1);
-                const existingLineFinalPoint = line.getPoint(0, line.paths[0].length -
-                    1);
-
+                const existingLineFinalPoint = line.getPoint(0, line.paths[0].length - 1);
                 return {
                     type: "polyline",
                     spatialReference: __view.spatialReference,
@@ -216,27 +275,12 @@ R.define([
             this._action.on("draw-complete", this.drawGeo.bind(this));
         },
         labelInfo: function(geom, area) {
-            var graphic = new Graphic({
-                geometry: geom.centroid,
-                symbol: {
-                    type: "text",
-                    color: [47, 64, 80, 0.8],
-                    text: area.toFixed(2) + " " + this._areaUnitShortName,
-                    xoffset: 3,
-                    yoffset: 3,
-                    font: { // autocast as Font
-                        size: 14,
-                        family: "sans-serif",
-                        weight: "bold"
-                    }
-                }
-            });
-            this._graphciLayer.add(graphic);
+            let g=this._getTextGraphic(geom.centroid,area.toFixed(2) + " " + this._areaUnitShortName);
+            this._graphicLayer.add(g);
         },
         drawGeo: function(event) {
             var vertices = event.vertices;
-            //remove existing graphic
-            this._graphciLayer.removeAll();
+            this._graphicLayer.removeAll();
 
             var polygon = new Polygon({
                 rings: vertices,
@@ -246,19 +290,18 @@ R.define([
             var graphic = new Graphic({
                 geometry: polygon,
                 symbol: {
-                    type: "simple-fill", // autocasts as SimpleFillSymbol
+                    type: "simple-fill",
                     color: [116, 142, 168, 0.4],
                     style: "solid",
-                    outline: { // autocasts as SimpleLineSymbol
+                    outline: {
                         color: [47, 64, 80, 0.82],
                         width: 2
                     }
                 }
             });
-            this._graphciLayer.add(graphic);
+            this._graphicLayer.add(graphic);
             var area = geometryEngine.geodesicArea(polygon, this._areaUnit);
             if (area < 0) {
-                // simplify the polygon if needed and calculate the area again
                 var simplifiedPolygon = geometryEngine.simplify(polygon);
                 if (simplifiedPolygon) {
                     area = geometryEngine.geodesicArea(simplifiedPolygon, this._areaUnit);
