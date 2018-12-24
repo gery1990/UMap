@@ -18,7 +18,12 @@ R.define([], function (L) {
         initialize: function () {
 
         },
-
+        /**
+        *事件缓存
+        *@property _connectHandlers
+        *@type {Array}
+        */
+        connectHandlers:[],
         /**
         *获取当前对象类型
         *

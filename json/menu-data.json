@@ -8,7 +8,6 @@
 			"id":"1",
 			"parent":"",
 			"title":"基础数据",
-			"sourceUrl":"",
 			"childNodes":[
 				{
 					"id":"2",
@@ -16,6 +15,7 @@
 					"title":"行政区界限",
 					"sourceUrl":"http://map.geoq.cn/arcgis/rest/services/SimpleFeature/ChinaBoundaryLine/MapServer",
 					"serviceType":"MapServer",
+					"type":"data",
 					"childNodes":[]
 				},
 				{
@@ -30,6 +30,7 @@
 							"title":"总规",
 							"sourceUrl":"http://map.geoq.cn/arcgis/rest/services/SimpleFeature/ChinaBoundaryLine/MapServer",
 							"serviceType":"MapServer",
+							"type":"data",
 							"childNodes":[]
 						},
 						{
@@ -38,6 +39,7 @@
 							"title":"详细规划",
 							"sourceUrl":"http://map.geoq.cn/arcgis/rest/services/SimpleFeature/ChinaBoundaryLine/MapServer",
 							"serviceType":"MapServer",
+							"type":"data",
 							"childNodes":[]
 						},
 						{
@@ -46,6 +48,7 @@
 							"title":"红线",
 							"sourceUrl":"http://map.geoq.cn/arcgis/rest/services/SimpleFeature/ChinaBoundaryLine/MapServer",
 							"serviceType":"MapServer",
+							"type":"data",
 							"childNodes":[]
 						}
 					]
@@ -56,6 +59,28 @@
 					"title":"业务数据",
 					"sourceUrl":"http://map.geoq.cn/arcgis/rest/services/SimpleFeature/ChinaBoundaryLine/MapServer",
 					"serviceType":"MapServer",
+					"type":"data",
+					"childNodes":[]
+				}
+			]
+		},
+		{
+			"id":"8",
+			"parent":"",
+			"title":"报表",
+			"childNodes":[
+				{
+					"id":"9",
+					"parent":"8",
+					"title":"聚合图",
+					"type":"function",
+					"childNodes":[]
+				},
+				{
+					"id":"10",
+					"parent":"8",
+					"title":"热度图",
+					"type":"function",
 					"childNodes":[]
 				}
 			]

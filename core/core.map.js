@@ -124,6 +124,11 @@ R.define([
             baseLayerUrl: null  //底图地址
         },
 
+        /**
+        *地图加载状态
+        *@property mapState
+        *@type {String}
+        */
         mapState:"running",
         /**
         *初始化
@@ -175,10 +180,11 @@ R.define([
                     this.__initWidgets();//地图加载后初始化地图控件
                     this._addEvents();
                     this.mapState="finished";
-                    // console.log("The view's resources success to load!");
+                    if(options.success) options.success(this);
                 }.bind(this), function(error){
                     this.mapState="stopped";
-                    console.log("The view's resources failed to load: ", error);
+                    if(options.error) options.error(this)
+                    console.log("地图窗体加载失败 : ", error);
                 });
             }catch(e){
                 console.log(e);
@@ -227,12 +233,27 @@ R.define([
         *@method _addEvents
         */
         _addEvents:function(){
+            //监听地图视图事件
             this.view.on('focus',function(){
-                connect.publish("activeMapChange",{id:this.id})
+                connect.publish("activeMapChange",{id:this.id});
+            }.bind(this));
+            this.view.on('click',function(event){
+                connect.publish("clickMap",event);
             }.bind(this));
             this.view.on("blur",function(){
-                this._container
             }.bind(this));
+            this.view.watch("extent",function(){
+                if(arguments[3].focused){
+                    connect.publish("extentChange",arguments[0]);
+                }
+            }.bind(this));
+        },
+        /**
+        *设置地图视图范围
+        *@method setExtent
+        */
+        setExtent:function(extent){
+            this.view.goTo(extent);
         },
         /**
         *获取图层集合
@@ -449,6 +470,10 @@ R.define([
             this.view.destroy();
             this.view=null;
             this.map=null;
+
+            this.connectHandlers.forEach(function(handler){
+                connect.unsubscribe(handler);
+            })
         }
     });
     return UMAP.Core.Map;

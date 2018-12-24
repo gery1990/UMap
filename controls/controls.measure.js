@@ -46,10 +46,10 @@ R.define([
                     type: "text",
                     color: [47, 64, 80, 0.8],
                     text: text,
-                    xoffset: 3,
-                    yoffset: 3,
+                    xoffset: "20px",
+                    yoffset: "6px",
                     font: { // autocast as Font
-                        size: 14,
+                        size: 12,
                         family: "sans-serif",
                         weight: "bold"
                     }
@@ -84,6 +84,8 @@ R.define([
          *@type {Object}
          */
         end: function() {
+            if(this._draw.activeAction)
+                this._draw.activeAction.destroy();
             this._draw.complete();
         },
         /**
@@ -112,6 +114,7 @@ R.define([
          *@type {Object}
          */
         clear: function() {
+            this.end();
             this._graphicLayer.removeAll();
         },
         /**
@@ -120,6 +123,7 @@ R.define([
          *@type {Object}
          */
         destroy: function() {
+            this.end();
             this._map.remove(this._graphicLayer);
         }
     });
@@ -131,14 +135,10 @@ R.define([
             this._view.focus();
             this._action.on("vertex-add", this.drawGeo.bind(this));
             this._action.on("cursor-update", this.drawGeo.bind(this));
-            this._action.on("vertex-remove", this.drawGeo.bind(this));
-            this._action.on("redo", this.drawGeo.bind(this));
-            this._action.on("undo", this.drawGeo.bind(this));
+            // this._action.on("vertex-remove", this.drawGeo.bind(this));
+            // this._action.on("redo", this.drawGeo.bind(this));
+            // this._action.on("undo", this.drawGeo.bind(this));
             this._action.on("draw-complete", this.drawGeo.bind(this));
-        },
-        labelInfo: function(geom, res) {
-            let g=this._getTextGraphic(geom.extent.center,res.toFixed(2) + " " + this._lengthUnitShortName);
-            this._graphicLayer.add(g);
         },
         _pointVertice: function(vertices) {
             //标记线段的顶点
@@ -151,17 +151,48 @@ R.define([
                 this._graphicLayer.add(g);
             }.bind(this));
         },
-        _pointStartText:function(geo){
-            //标记线段起点text
-            let g=this._getTextGraphic(
-                {
-                    type: "point",
-                    x: geo[0],
-                    y: geo[1],
-                    spatialReference:this._view.spatialReference
-                },"起点"
-            );
-            this._graphicLayer.add(g);
+        labelInfo:function(vertices){
+            //标记线段距离
+            let gArray=[];
+            let prePoint=null;
+            vertices.forEach(function(vertice,index) {
+                let geo={type: "point",x: vertice[0], y: vertice[1],spatialReference:this._view.spatialReference};
+                let g=null;
+                if(index==0){
+                    //标记线段起点text
+                    g=this._getTextGraphic(geo, "起点");
+                }else if((index+1)==vertices.length){
+                    //标记线段总长度
+                    let polyline=new Polyline({
+                        type: "polyline",
+                        paths: vertices,
+                        spatialReference: this._view.spatialReference
+                    });
+                    let lineLength = geometryEngine.geodesicLength(polyline, this._lengthUnit);
+                    if (lineLength < 0) {
+                        var simplifiedPolyLine = geometryEngine.simplify(polyline);
+                        if (simplifiedPolyLine) {
+                            lineLength = geometryEngine.geodesicLength(simplifiedPolyLine, this._lengthUnit);
+                        }
+                    }
+                    g=this._getTextGraphic(geo,"总长: "+lineLength.toFixed(2) + " " + this._lengthUnitShortName);
+                }else{
+                    //标记分段长度
+                    let polyline=new Polyline({
+                        type: "polyline",
+                        paths: [prePoint,vertice],
+                        spatialReference: this._view.spatialReference
+                    });
+                    var lineLength = geometryEngine.geodesicLength(polyline, this._lengthUnit);
+                    g=this._getTextGraphic(geo,lineLength.toFixed(2) + " " + this._lengthUnitShortName);
+                }
+                prePoint=vertice;
+
+                let pointG = this._getPointGraphic(geo);
+                gArray.push(g);
+                gArray.push(pointG);
+            }.bind(this));
+            this._graphicLayer.addMany(gArray);
         },
         drawGeo: function(event) {
             var paths = event.vertices;
@@ -205,18 +236,8 @@ R.define([
             if (intersectingSegment) {
                 event.preventDefault();
             }
-            var lineLength = geometryEngine.geodesicLength(polyline, this._lengthUnit);
-            if (lineLength < 0) {
-                var simplifiedPolyLine = geometryEngine.simplify(polyline);
-                if (simplifiedPolyLine) {
-                    lineLength = geometryEngine.geodesicLength(simplifiedPolyLine, this._lengthUnit);
-                }
-            }
-            this.labelInfo(polyline, lineLength);
-            this._pointVertice(event.vertices);
-            if(event.vertices.length>1){
-                this._pointStartText(event.vertices[0]);
-            }
+
+            this.labelInfo(event.vertices);
 
             function isSelfIntersecting(polyline) {
                 if (polyline.paths[0].length < 3) {
